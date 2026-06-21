@@ -32,7 +32,12 @@ async def upload_background(
     file: UploadFile = File(...),
     name: str = Form(""),
 ) -> dict[str, object]:
-    content = await file.read()
+    max_bytes = int(getattr(request.app.state.settings, "scene_asset_max_bytes", 200 * 1024 * 1024))
+    content = await file.read(max_bytes + 1)
+    if not content:
+        raise HTTPException(status_code=400, detail="empty background asset")
+    if len(content) > max_bytes:
+        raise HTTPException(status_code=413, detail="background asset exceeds size limit")
     try:
         return _store(request).create_background(
             content=content,

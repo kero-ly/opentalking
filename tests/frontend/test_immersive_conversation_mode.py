@@ -14,6 +14,16 @@ def test_scene_stage_component_exists_and_handles_background_layers() -> None:
     assert "subtitle_style" in source
 
 
+def test_scene_stage_applies_avatar_anchor_positioning() -> None:
+    source = Path("apps/web/src/components/SceneStage.tsx").read_text(encoding="utf-8")
+
+    assert "scene?.avatar_anchor" in source
+    assert "avatarAnchorClass" in source
+    assert 'bottom: "items-end justify-center"' in source
+    assert 'left: "items-center justify-start"' in source
+    assert 'right: "items-center justify-end"' in source
+
+
 def test_app_uses_scene_stage_for_realtime_stage() -> None:
     source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
 

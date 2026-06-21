@@ -52,6 +52,18 @@ def test_scene_asset_store_rejects_unsupported_background_type(tmp_path: Path) -
         )
 
 
+def test_scene_asset_store_rejects_spoofed_background_content(tmp_path: Path) -> None:
+    store = SceneAssetStore(tmp_path)
+
+    with pytest.raises(ValueError, match="unsupported background media type"):
+        store.create_background(
+            content=b"plain text pretending to be an image",
+            filename="studio.png",
+            mime_type="image/png",
+            name="Spoof",
+        )
+
+
 def test_scene_asset_store_rejects_zero_avatar_scale(tmp_path: Path) -> None:
     store = SceneAssetStore(tmp_path)
 
@@ -119,9 +131,41 @@ def test_scene_asset_store_creates_and_updates_composition(tmp_path: Path) -> No
     assert store.list_compositions() == []
 
 
+def test_scene_asset_store_rejects_unknown_background_id(tmp_path: Path) -> None:
+    store = SceneAssetStore(tmp_path)
+
+    with pytest.raises(ValueError, match="background_id not found"):
+        store.create_composition(
+            {
+                "name": "Missing Background",
+                "avatar_id": "anchor",
+                "background_id": "bg-missing",
+            }
+        )
+
+    background = store.create_background(
+        content=PNG_BYTES,
+        filename="studio.png",
+        mime_type="image/png",
+        name="Studio",
+    )
+    created = store.create_composition(
+        {
+            "name": "Demo Scene",
+            "avatar_id": "anchor",
+            "background_id": background["id"],
+        }
+    )
+    with pytest.raises(ValueError, match="background_id not found"):
+        store.update_composition(str(created["id"]), {"background_id": "bg-missing"})
+
+
 def _client(tmp_path: Path) -> TestClient:
     app = FastAPI()
-    app.state.settings = SimpleNamespace(scene_assets_dir=str(tmp_path / "scene-assets"))
+    app.state.settings = SimpleNamespace(
+        scene_assets_dir=str(tmp_path / "scene-assets"),
+        scene_asset_max_bytes=len(PNG_BYTES),
+    )
     app.include_router(scene_assets.router)
     return TestClient(app)
 
@@ -149,6 +193,28 @@ def test_scene_asset_api_uploads_lists_downloads_and_deletes_background(tmp_path
         deleted = client.delete(f"/scene-assets/backgrounds/{item['id']}")
         assert deleted.status_code == 200
         assert deleted.json()["deleted"] is True
+
+
+def test_scene_asset_api_rejects_oversized_background_upload(tmp_path: Path) -> None:
+    with _client(tmp_path) as client:
+        upload = client.post(
+            "/scene-assets/backgrounds",
+            data={"name": "Too Big"},
+            files={"file": ("studio.png", PNG_BYTES + b"x", "image/png")},
+        )
+        assert upload.status_code == 413
+        assert upload.json()["detail"] == "background asset exceeds size limit"
+
+
+def test_scene_asset_api_rejects_spoofed_content_type(tmp_path: Path) -> None:
+    with _client(tmp_path) as client:
+        upload = client.post(
+            "/scene-assets/backgrounds",
+            data={"name": "Spoof"},
+            files={"file": ("studio.png", b"this is plain text", "image/png")},
+        )
+        assert upload.status_code == 400
+        assert upload.json()["detail"] == "unsupported background media type"
 
 
 def test_scene_asset_api_manages_compositions(tmp_path: Path) -> None:
@@ -198,3 +264,17 @@ def test_scene_asset_api_manages_compositions(tmp_path: Path) -> None:
 
         deleted_again = client.delete(f"/scene-assets/compositions/{scene['id']}")
         assert deleted_again.status_code == 404
+
+
+def test_scene_asset_api_rejects_unknown_background_id(tmp_path: Path) -> None:
+    with _client(tmp_path) as client:
+        created = client.post(
+            "/scene-assets/compositions",
+            json={
+                "name": "Missing Background",
+                "avatar_id": "anchor",
+                "background_id": "bg-missing",
+            },
+        )
+        assert created.status_code == 400
+        assert created.json()["detail"] == "background_id not found"

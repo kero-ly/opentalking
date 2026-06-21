@@ -17,6 +17,13 @@ function backgroundUrl(background: SceneBackgroundAsset): string {
   return buildApiUrl(background.url);
 }
 
+const AVATAR_ANCHOR_CLASSES = {
+  center: "items-center justify-center",
+  bottom: "items-end justify-center",
+  left: "items-center justify-start",
+  right: "items-center justify-end",
+} as const;
+
 export function SceneStage({
   videoRef,
   scene,
@@ -31,6 +38,8 @@ export function SceneStage({
     : null;
   const subtitleStyle = scene?.subtitle_style ?? "lower-third";
   const avatarFit = scene?.avatar_fit === "cover" ? "object-cover" : "object-contain";
+  const avatarAnchor = scene?.avatar_anchor ?? "center";
+  const avatarAnchorClass = AVATAR_ANCHOR_CLASSES[avatarAnchor as keyof typeof AVATAR_ANCHOR_CLASSES] ?? AVATAR_ANCHOR_CLASSES.center;
   const backgroundColor = scene?.background_color || "#0f172a";
 
   return (
@@ -45,7 +54,7 @@ export function SceneStage({
         <div className="absolute inset-0 bg-slate-950/10" />
       </div>
 
-      <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      <div className={`absolute inset-0 flex p-4 sm:p-6 lg:p-8 ${avatarAnchorClass}`}>
         <div
           className={
             compactSquareStage

@@ -36,6 +36,30 @@ def test_app_passes_avatars_to_asset_library_workspace() -> None:
     assert "avatars={avatars}" in asset_library_mount
 
 
+def test_app_wires_scene_selection_and_background_updates_to_asset_library_workspace() -> None:
+    source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
+
+    asset_library_mount = source.split('workflow === "assetLibrary" ? (', 1)[1].split(
+        ') : workflow === "videoCreation" ? (',
+        1,
+    )[0]
+    assert "selectedSceneId={selectedSceneId}" in asset_library_mount
+    assert "onSceneSelect={setSelectedSceneId}" in asset_library_mount
+    assert "onSceneBackgroundsChange={setSceneBackgrounds}" in asset_library_mount
+
+
+def test_asset_library_scene_cards_can_select_created_scene_and_sync_backgrounds() -> None:
+    source = Path("apps/web/src/components/AssetLibraryWorkspace.tsx").read_text(encoding="utf-8")
+
+    assert "selectedSceneId?: string | null;" in source
+    assert "onSceneSelect?: (sceneId: string) => void;" in source
+    assert "onSceneBackgroundsChange?: (backgrounds: SceneBackgroundAsset[]) => void;" in source
+    assert "onSceneSelect?.(created.id)" in source
+    assert "onSceneBackgroundsChange?.(nextBackgrounds)" in source
+    assert "onClick={() => onSceneSelect?.(scene.id)}" in source
+    assert "aria-pressed={selectedSceneId === scene.id}" in source
+
+
 def test_scene_delete_actions_use_error_handled_handlers() -> None:
     source = Path("apps/web/src/components/AssetLibraryWorkspace.tsx").read_text(encoding="utf-8")
 

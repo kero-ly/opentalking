@@ -25,6 +25,25 @@ VALID_AVATAR_ANCHORS = {"center", "bottom", "left", "right"}
 VALID_SUBTITLE_STYLES = {"none", "compact", "lower-third"}
 
 
+def sniff_background_mime(content: bytes) -> str | None:
+    if content.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if content.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if len(content) >= 12 and content[:4] == b"RIFF" and content[8:12] == b"WEBP":
+        return "image/webp"
+    if len(content) >= 12 and content[4:8] == b"ftyp":
+        brand = content[8:12]
+        if brand in {b"qt  "}:
+            return "video/quicktime"
+        if brand in {b"mp41", b"mp42", b"isom", b"iso2", b"avc1", b"M4V "}:
+            return "video/mp4"
+        return "video/mp4"
+    if content.startswith(b"\x1a\x45\xdf\xa3"):
+        return "video/webm"
+    return None
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -62,10 +81,12 @@ class SceneAssetStore:
 
     def create_background(self, *, content: bytes, filename: str, mime_type: str, name: str) -> dict[str, object]:
         normalized_mime = (mime_type or "").split(";")[0].strip().lower()
-        if normalized_mime not in SUPPORTED_BACKGROUND_TYPES:
-            raise ValueError("unsupported background media type")
         if not content:
             raise ValueError("empty background asset")
+        sniffed_mime = sniff_background_mime(content)
+        if sniffed_mime not in SUPPORTED_BACKGROUND_TYPES:
+            raise ValueError("unsupported background media type")
+        normalized_mime = sniffed_mime
         ext = EXT_BY_MIME[normalized_mime]
         background_id = f"bg-{_slug(name or Path(filename).stem, 'background')}-{uuid.uuid4().hex[:10]}"
         media_path = self.backgrounds_dir / background_id / f"source{ext}"
@@ -156,6 +177,8 @@ class SceneAssetStore:
         if not avatar_id:
             raise ValueError("avatar_id is required")
         background_id = str(payload.get("background_id") or "").strip() or None
+        if background_id and not any(item.get("id") == background_id for item in self.list_backgrounds()):
+            raise ValueError("background_id not found")
         avatar_fit = str(payload.get("avatar_fit") or "contain").strip()
         avatar_anchor = str(payload.get("avatar_anchor") or "center").strip()
         subtitle_style = str(payload.get("subtitle_style") or "lower-third").strip()

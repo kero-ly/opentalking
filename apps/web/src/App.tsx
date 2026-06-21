@@ -1221,6 +1221,14 @@ export default function App() {
     }
   }, []);
 
+  const handleSceneCompositionsChange = useCallback((scenes: SceneComposition[]) => {
+    setSceneCompositions(scenes);
+    setSelectedSceneId((current) => {
+      if (current && scenes.some((scene) => scene.id === current)) return current;
+      return scenes[0]?.id ?? "";
+    });
+  }, []);
+
   const refreshAvatarKnowledgeBases = useCallback(async (targetAvatarId: string) => {
     if (!targetAvatarId) return;
     const seq = ++avatarKnowledgeBasesLoadSeqRef.current;
@@ -2782,7 +2790,10 @@ export default function App() {
             onMemoryLibrariesChange={setMemoryLibraries}
             onRefreshMemoryLibraries={() => void refreshMemoryLibraries()}
             avatars={avatars}
-            onSceneCompositionsChange={setSceneCompositions}
+            selectedSceneId={selectedSceneId}
+            onSceneSelect={setSelectedSceneId}
+            onSceneBackgroundsChange={setSceneBackgrounds}
+            onSceneCompositionsChange={handleSceneCompositionsChange}
           />
         </div>
       ) : workflow === "videoCreation" ? (

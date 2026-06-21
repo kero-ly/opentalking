@@ -45,6 +45,9 @@ type AssetLibraryWorkspaceProps = {
   onRefreshMemoryLibraries?: () => void;
   avatars?: AvatarSummary[];
   onSceneCompositionsChange?: (scenes: SceneComposition[]) => void;
+  selectedSceneId?: string | null;
+  onSceneSelect?: (sceneId: string) => void;
+  onSceneBackgroundsChange?: (backgrounds: SceneBackgroundAsset[]) => void;
 };
 
 const ASSET_TABS: { id: AssetTab; label: string; disabled?: boolean }[] = [
@@ -237,6 +240,9 @@ export function AssetLibraryWorkspace({
   onRefreshMemoryLibraries,
   avatars,
   onSceneCompositionsChange,
+  selectedSceneId = null,
+  onSceneSelect,
+  onSceneBackgroundsChange,
 }: AssetLibraryWorkspaceProps) {
   const [activeTab, setActiveTab] = useState<AssetTab>(initialTab);
   const [items, setItems] = useState<ExportVideoItem[]>([]);
@@ -354,6 +360,7 @@ export function AssetLibraryWorkspace({
       ]);
       setSceneBackgrounds(backgrounds.items);
       setSceneCompositions(scenes.items);
+      onSceneBackgroundsChange?.(backgrounds.items);
       onSceneCompositionsChange?.(scenes.items);
       setSceneAvatarId((current) => current || avatars?.[0]?.id || "");
     } catch (err) {
@@ -363,7 +370,7 @@ export function AssetLibraryWorkspace({
     } finally {
       setSceneLoading(false);
     }
-  }, [avatars, onNotify, onSceneCompositionsChange]);
+  }, [avatars, onNotify, onSceneBackgroundsChange, onSceneCompositionsChange]);
 
   useEffect(() => {
     if (activeTabOverride) setActiveTab(activeTabOverride);
@@ -657,7 +664,9 @@ export function AssetLibraryWorkspace({
         file: backgroundFile,
         name: backgroundName.trim() || backgroundFile.name,
       });
-      setSceneBackgrounds((prev) => [uploaded, ...prev.filter((item) => item.id !== uploaded.id)]);
+      const nextBackgrounds = [uploaded, ...sceneBackgrounds.filter((item) => item.id !== uploaded.id)];
+      setSceneBackgrounds(nextBackgrounds);
+      onSceneBackgroundsChange?.(nextBackgrounds);
       setBackgroundFile(null);
       setBackgroundName("");
       onNotify?.("背景资产已上传。", "success");
@@ -666,7 +675,7 @@ export function AssetLibraryWorkspace({
       const detail = err instanceof ApiError ? err.detail : null;
       onNotify?.(detail ? `上传失败：${detail}` : "上传失败，请稍后重试。", "error");
     }
-  }, [backgroundFile, backgroundName, onNotify]);
+  }, [backgroundFile, backgroundName, onNotify, onSceneBackgroundsChange, sceneBackgrounds]);
 
   const handleCreateSceneComposition = useCallback(async () => {
     if (!sceneName.trim() || !sceneAvatarId) return;
@@ -684,6 +693,7 @@ export function AssetLibraryWorkspace({
       const nextScenes = [created, ...sceneCompositions.filter((item) => item.id !== created.id)];
       setSceneCompositions(nextScenes);
       onSceneCompositionsChange?.(nextScenes);
+      onSceneSelect?.(created.id);
       setSceneName("");
       onNotify?.("场景组合已创建。", "success");
     } catch (err) {
@@ -691,7 +701,7 @@ export function AssetLibraryWorkspace({
       const detail = err instanceof ApiError ? err.detail : null;
       onNotify?.(detail ? `创建失败：${detail}` : "创建失败，请稍后重试。", "error");
     }
-  }, [onNotify, onSceneCompositionsChange, sceneAvatarId, sceneBackgroundId, sceneCompositions, sceneName]);
+  }, [onNotify, onSceneCompositionsChange, onSceneSelect, sceneAvatarId, sceneBackgroundId, sceneCompositions, sceneName]);
 
   const handleDeleteSceneBackground = useCallback(async (background: SceneBackgroundAsset) => {
     try {
@@ -1134,7 +1144,14 @@ export function AssetLibraryWorkspace({
             const avatar = avatars?.find((item) => item.id === scene.avatar_id);
             const mattingLabel = avatar?.matting_status === "transparent_ready" ? "已抠像/透明数字人" : "未抠像";
             return (
-              <article key={scene.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <article
+                key={scene.id}
+                className={`rounded-lg border p-3 transition ${
+                  selectedSceneId === scene.id
+                    ? "border-cyan-300 bg-cyan-50"
+                    : "border-slate-200 bg-slate-50"
+                }`}
+              >
                 <p className="truncate text-sm font-semibold text-slate-950">{scene.name}</p>
                 <p className="mt-1 truncate text-xs text-slate-500">Avatar {scene.avatar_id}</p>
                 <p className="mt-1 truncate text-xs text-slate-500">{mattingLabel}</p>
@@ -1142,13 +1159,23 @@ export function AssetLibraryWorkspace({
                 <p className="mt-2 rounded-md bg-white px-2 py-1 text-xs text-slate-600">
                   {scene.matting_required ? "建议使用已抠像/透明数字人" : "普通舞台模式"}
                 </p>
-                <button
-                  type="button"
-                  onClick={() => void handleDeleteSceneComposition(scene)}
-                  className="mt-2 text-xs font-semibold text-rose-600 hover:text-rose-500"
-                >
-                  删除
-                </button>
+                <div className="mt-3 flex items-center gap-3">
+                  <button
+                    type="button"
+                    aria-pressed={selectedSceneId === scene.id}
+                    onClick={() => onSceneSelect?.(scene.id)}
+                    className="text-xs font-semibold text-cyan-700 hover:text-cyan-600"
+                  >
+                    {selectedSceneId === scene.id ? "使用中" : "使用场景"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleDeleteSceneComposition(scene)}
+                    className="text-xs font-semibold text-rose-600 hover:text-rose-500"
+                  >
+                    删除
+                  </button>
+                </div>
               </article>
             );
           }) : (
