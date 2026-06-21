@@ -1142,7 +1142,11 @@ export function AssetLibraryWorkspace({
         <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {sceneCompositions.length ? sceneCompositions.map((scene) => {
             const avatar = avatars?.find((item) => item.id === scene.avatar_id);
-            const mattingLabel = avatar?.matting_status === "transparent_ready" ? "已抠像/透明数字人" : "未抠像";
+            const mattingLabel = avatar?.matting_status === "transparent_ready"
+              ? "已抠像/透明数字人"
+              : avatar?.matting_status === "unknown"
+                ? "抠像状态未知"
+                : "未抠像";
             return (
               <article
                 key={scene.id}

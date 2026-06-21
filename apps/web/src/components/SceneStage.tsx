@@ -24,6 +24,20 @@ const AVATAR_ANCHOR_CLASSES = {
   right: "items-center justify-end",
 } as const;
 
+const AVATAR_ANCHOR_OBJECT_POSITIONS = {
+  center: "object-center",
+  bottom: "object-[center_bottom]",
+  left: "object-[left_center]",
+  right: "object-[right_center]",
+} as const;
+
+const AVATAR_ANCHOR_TRANSFORM_ORIGINS = {
+  center: "center",
+  bottom: "center bottom",
+  left: "left center",
+  right: "right center",
+} as const;
+
 export function SceneStage({
   videoRef,
   scene,
@@ -40,6 +54,8 @@ export function SceneStage({
   const avatarFit = scene?.avatar_fit === "cover" ? "object-cover" : "object-contain";
   const avatarAnchor = scene?.avatar_anchor ?? "center";
   const avatarAnchorClass = AVATAR_ANCHOR_CLASSES[avatarAnchor as keyof typeof AVATAR_ANCHOR_CLASSES] ?? AVATAR_ANCHOR_CLASSES.center;
+  const avatarObjectPosition = AVATAR_ANCHOR_OBJECT_POSITIONS[avatarAnchor as keyof typeof AVATAR_ANCHOR_OBJECT_POSITIONS] ?? AVATAR_ANCHOR_OBJECT_POSITIONS.center;
+  const avatarTransformOrigin = AVATAR_ANCHOR_TRANSFORM_ORIGINS[avatarAnchor as keyof typeof AVATAR_ANCHOR_TRANSFORM_ORIGINS] ?? AVATAR_ANCHOR_TRANSFORM_ORIGINS.center;
   const backgroundColor = scene?.background_color || "#0f172a";
 
   return (
@@ -61,9 +77,9 @@ export function SceneStage({
               ? "relative aspect-square w-full max-w-[42rem] max-h-full"
               : "relative h-full w-full"
           }
-          style={{ transform: `scale(${scene?.avatar_scale ?? 1})`, transformOrigin: "center" }}
+          style={{ transform: `scale(${scene?.avatar_scale ?? 1})`, transformOrigin: avatarTransformOrigin }}
         >
-          <VideoBackground ref={videoRef} className={`absolute inset-0 h-full w-full ${avatarFit}`} />
+          <VideoBackground ref={videoRef} className={`absolute inset-0 h-full w-full ${avatarFit} ${avatarObjectPosition}`} />
         </div>
       </div>
 

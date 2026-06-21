@@ -18,7 +18,13 @@ def test_scene_stage_applies_avatar_anchor_positioning() -> None:
     source = Path("apps/web/src/components/SceneStage.tsx").read_text(encoding="utf-8")
 
     assert "scene?.avatar_anchor" in source
-    assert "avatarAnchorClass" in source
+    assert "AVATAR_ANCHOR_OBJECT_POSITIONS" in source
+    assert 'bottom: "object-[center_bottom]"' in source
+    assert 'left: "object-[left_center]"' in source
+    assert 'right: "object-[right_center]"' in source
+    assert "${avatarFit} ${avatarObjectPosition}" in source
+    assert "AVATAR_ANCHOR_TRANSFORM_ORIGINS" in source
+    assert "transformOrigin: avatarTransformOrigin" in source
     assert 'bottom: "items-end justify-center"' in source
     assert 'left: "items-center justify-start"' in source
     assert 'right: "items-center justify-end"' in source

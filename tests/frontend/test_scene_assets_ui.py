@@ -80,5 +80,7 @@ def test_scene_ui_surfaces_matting_readiness_copy() -> None:
 
     assert 'matting_status: "unknown" | "opaque" | "transparent_ready";' in api_source
     assert "已抠像/透明数字人" in asset_source
+    assert "抠像状态未知" in asset_source
     assert "未抠像" in asset_source
+    assert 'avatar?.matting_status === "unknown"' in asset_source
     assert "matting_status" in avatar_source
