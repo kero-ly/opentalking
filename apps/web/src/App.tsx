@@ -11,9 +11,9 @@ import {
   type Wav2LipPostprocessMode,
 } from "./components/SettingsPanel";
 import { RuntimeConfigWorkspace } from "./components/RuntimeConfigWorkspace";
+import { SceneStage } from "./components/SceneStage";
 import { TopBar, type StudioWorkflow } from "./components/TopBar";
 import { ToastStack, type ToastMessage, type ToastTone } from "./components/ToastStack";
-import { VideoBackground } from "./components/VideoBackground";
 import { AssetLibraryWorkspace, type AssetLibraryTab } from "./components/AssetLibraryWorkspace";
 import { VideoCloneWorkspace } from "./components/VideoCloneWorkspace";
 import {
@@ -31,6 +31,8 @@ import {
   apiUploadFile,
   buildApiUrl,
   getMemoryLibraries,
+  listSceneBackgrounds,
+  listSceneCompositions,
   loadRuntimeConfig,
   uploadExportVideo,
   type AvatarKnowledgeBasesResponse,
@@ -43,6 +45,8 @@ import {
   type PersonasResponse,
   type RuntimeConfigApplyInput,
   type RuntimeConfigResponse,
+  type SceneBackgroundAsset,
+  type SceneComposition,
   type SessionKnowledgeBasesRequest,
   type SessionKnowledgeBasesResponse,
   type VoiceCatalogItem,
@@ -186,6 +190,7 @@ const ASR_PROVIDER_STORAGE_KEY = "opentalking-asr-provider-v1";
 const CLIENT_USER_ID_KEY = "opentalking-client-user-id";
 const AGENT_CONFIG_STORAGE_KEY = "opentalking-agent-config-v1";
 const SELECTED_PERSONA_STORAGE_KEY = "opentalking-selected-persona-id-v1";
+const SELECTED_SCENE_STORAGE_KEY = "opentalking-selected-scene-id-v1";
 const LEGACY_FASTLIVEPORTRAIT_DEFAULT_CONFIG: FasterLivePortraitConfig = {
   head_motion_multiplier: 1.0,
   pose_motion_multiplier: 0.35,
@@ -982,6 +987,15 @@ export default function App() {
   const [memoryEnabled, setMemoryEnabled] = useState(false);
   const [memoryLibraryId, setMemoryLibraryId] = useState<string | null>(null);
   const [memoryLibraries, setMemoryLibraries] = useState<MemoryLibrary[]>([]);
+  const [sceneBackgrounds, setSceneBackgrounds] = useState<SceneBackgroundAsset[]>([]);
+  const [sceneCompositions, setSceneCompositions] = useState<SceneComposition[]>([]);
+  const [selectedSceneId, setSelectedSceneId] = useState(() => {
+    try {
+      return window.localStorage.getItem(SELECTED_SCENE_STORAGE_KEY) ?? "";
+    } catch {
+      return "";
+    }
+  });
   const avatarKnowledgeBasesSyncReadyRef = useRef(false);
   const lastPersistedAvatarKnowledgeBasesRef = useRef<Map<string, string[]>>(new Map());
   const avatarKnowledgeBasesLoadSeqRef = useRef(0);
@@ -1041,6 +1055,10 @@ export default function App() {
   });
 
   const compactSquareStage = usesCompactSquareStage(model);
+  const selectedScene = useMemo(
+    () => sceneCompositions.find((scene) => scene.id === selectedSceneId) ?? null,
+    [sceneCompositions, selectedSceneId],
+  );
 
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
@@ -1177,6 +1195,23 @@ export default function App() {
     }
   }, [notify]);
 
+  const refreshScenes = useCallback(async () => {
+    try {
+      const [backgrounds, scenes] = await Promise.all([
+        listSceneBackgrounds(),
+        listSceneCompositions(),
+      ]);
+      setSceneBackgrounds(backgrounds.items);
+      setSceneCompositions(scenes.items);
+      setSelectedSceneId((current) => {
+        if (current && scenes.items.some((scene) => scene.id === current)) return current;
+        return scenes.items[0]?.id ?? "";
+      });
+    } catch (error) {
+      console.warn("load scene assets failed", error);
+    }
+  }, []);
+
   const refreshAvatarKnowledgeBases = useCallback(async (targetAvatarId: string) => {
     if (!targetAvatarId) return;
     const seq = ++avatarKnowledgeBasesLoadSeqRef.current;
@@ -1258,6 +1293,19 @@ export default function App() {
   useEffect(() => {
     if (workflow === "realtime") void refreshPersonas();
   }, [refreshPersonas, workflow]);
+
+  useEffect(() => {
+    void refreshScenes();
+  }, [refreshScenes]);
+
+  useEffect(() => {
+    try {
+      if (selectedSceneId) window.localStorage.setItem(SELECTED_SCENE_STORAGE_KEY, selectedSceneId);
+      else window.localStorage.removeItem(SELECTED_SCENE_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+  }, [selectedSceneId]);
 
   useEffect(() => {
     if (selectedPersonaId) return;
@@ -2709,6 +2757,7 @@ export default function App() {
             onMemoryLibrariesChange={setMemoryLibraries}
             onRefreshMemoryLibraries={() => void refreshMemoryLibraries()}
             avatars={avatars}
+            onSceneCompositionsChange={setSceneCompositions}
           />
         </div>
       ) : workflow === "videoCreation" ? (
@@ -2830,52 +2879,41 @@ export default function App() {
         <main className="order-1 flex min-h-0 flex-1 flex-col bg-slate-100 lg:order-none">
           <div className="flex min-h-0 flex-1 flex-col p-4">
             <div className="relative min-h-[360px] flex-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/70 lg:min-h-[420px]">
-              <div className="absolute inset-0 bg-slate-50" />
-              <div className="absolute inset-3 rounded-lg border border-slate-200 bg-white shadow-inner shadow-slate-200/60" />
-              <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-                <div
-                  className={
-                    compactSquareStage
-                      ? "relative aspect-square w-full max-w-[42rem] max-h-full"
-                      : "relative h-full w-full"
-                  }
-                >
-                  <VideoBackground ref={videoRef} className="absolute inset-0 h-full w-full object-contain" />
+              <SceneStage
+                videoRef={videoRef}
+                scene={selectedScene}
+                backgrounds={sceneBackgrounds}
+                subtitle={!showStart ? currentSubtitle : null}
+                compactSquareStage={compactSquareStage}
+                className="absolute inset-0"
+              >
+                <div className="absolute left-4 right-4 top-4 z-30 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex min-w-0 flex-wrap gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/90 px-2.5 py-1 text-xs font-medium text-slate-700 shadow-sm">
+                      <span className={`h-1.5 w-1.5 rounded-full ${
+                        connection === "live" || connection === "expiring" ? "bg-emerald-500" : "bg-slate-400"
+                      }`} />
+                      {connection === "live" || connection === "expiring" ? "已连接" : "待启动"}
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full border border-cyan-200 bg-cyan-50 px-2.5 py-1 text-xs font-medium text-cyan-700 shadow-sm">
+                      WebRTC 舞台
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 shadow-sm">
+                      {MODEL_LABELS_FOR_STAGE[model] ?? model}
+                    </span>
+                    <span className="inline-flex max-w-[14rem] items-center gap-1 truncate rounded-full border border-slate-200 bg-white/90 px-2.5 py-1 text-xs font-medium text-slate-600 shadow-sm">
+                      {currentAvatar?.name ?? currentAvatar?.id ?? "未选形象"}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleReturnToAvatarSelection}
+                    className="shrink-0 rounded-lg border border-slate-200 bg-white/95 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-cyan-200 hover:text-cyan-700"
+                  >
+                    更换形象
+                  </button>
                 </div>
-              </div>
-
-              <div className="absolute left-4 right-4 top-4 z-30 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                <div className="flex min-w-0 flex-wrap gap-2">
-                  <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/90 px-2.5 py-1 text-xs font-medium text-slate-700 shadow-sm">
-                    <span className={`h-1.5 w-1.5 rounded-full ${
-                      connection === "live" || connection === "expiring" ? "bg-emerald-500" : "bg-slate-400"
-                    }`} />
-                    {connection === "live" || connection === "expiring" ? "已连接" : "待启动"}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-cyan-200 bg-cyan-50 px-2.5 py-1 text-xs font-medium text-cyan-700 shadow-sm">
-                    WebRTC 舞台
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 shadow-sm">
-                    {MODEL_LABELS_FOR_STAGE[model] ?? model}
-                  </span>
-                  <span className="inline-flex max-w-[14rem] items-center gap-1 truncate rounded-full border border-slate-200 bg-white/90 px-2.5 py-1 text-xs font-medium text-slate-600 shadow-sm">
-                    {currentAvatar?.name ?? currentAvatar?.id ?? "未选形象"}
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleReturnToAvatarSelection}
-                  className="shrink-0 rounded-lg border border-slate-200 bg-white/95 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-cyan-200 hover:text-cyan-700"
-                >
-                  更换形象
-                </button>
-              </div>
-
-              {currentSubtitle && !showStart ? (
-                <div className="absolute inset-x-4 bottom-4 z-10 mx-auto max-w-xl rounded-lg border border-slate-200 bg-white/95 px-4 py-3 text-center text-sm font-medium leading-relaxed text-slate-900 shadow-lg shadow-slate-200/80 backdrop-blur">
-                  {currentSubtitle}
-                </div>
-              ) : null}
+              </SceneStage>
 
               {showStart ? (
                 <div className="absolute inset-0 z-40 bg-white">
