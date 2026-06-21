@@ -21,3 +21,30 @@ def test_app_uses_scene_stage_for_realtime_stage() -> None:
     assert "selectedScene" in source
     assert "sceneBackgrounds" in source
     assert "<SceneStage" in source
+
+
+def test_immersive_conversation_component_focuses_stage_and_input() -> None:
+    source = Path("apps/web/src/components/ImmersiveConversation.tsx").read_text(encoding="utf-8")
+
+    assert "export function ImmersiveConversation" in source
+    assert "SceneStage" in source
+    assert "ChatInput" in source
+    assert "onExit" in source
+    assert "immersive-controls" in source
+    assert "演示模式" in source
+
+
+def test_topbar_exposes_realtime_view_mode_toggle() -> None:
+    source = Path("apps/web/src/components/TopBar.tsx").read_text(encoding="utf-8")
+
+    assert 'export type ConversationViewMode = "studio" | "immersive";' in source
+    assert "onConversationViewModeChange" in source
+    assert "沉浸" in source
+
+
+def test_app_switches_between_studio_and_immersive_realtime_views() -> None:
+    source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
+
+    assert "conversationViewMode" in source
+    assert "ImmersiveConversation" in source
+    assert 'conversationViewMode === "immersive"' in source

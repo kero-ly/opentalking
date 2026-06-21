@@ -29,10 +29,12 @@ const DOT_LABELS: Record<ConnectionStatus, string> = {
 
 export type FlashtalkRecordPhase = "idle" | "recording" | "stopped";
 export type StudioWorkflow = "realtime" | "videoCreation" | "videoClone" | "assetLibrary" | "runtimeConfig";
+export type ConversationViewMode = "studio" | "immersive";
 
 interface TopBarProps {
   connection: ConnectionStatus;
   workflow?: StudioWorkflow;
+  conversationViewMode?: ConversationViewMode;
   flashtalkRecording?: boolean;
   flashtalkRecordPhase?: FlashtalkRecordPhase;
   flashtalkRecordBusy?: boolean;
@@ -40,6 +42,7 @@ interface TopBarProps {
   runtimeConfigReady?: boolean;
   runtimeConfigLoading?: boolean;
   onInactiveModuleClick?: (label: string) => void;
+  onConversationViewModeChange?: (mode: ConversationViewMode) => void;
   onFlashtalkRecordStart?: () => void;
   onFlashtalkRecordStop?: () => void;
   onFlashtalkRecordSave?: () => void;
@@ -49,6 +52,7 @@ interface TopBarProps {
 export function TopBar({
   connection,
   workflow = "realtime",
+  conversationViewMode = "studio",
   flashtalkRecording = false,
   flashtalkRecordPhase = "idle",
   flashtalkRecordBusy = false,
@@ -56,6 +60,7 @@ export function TopBar({
   runtimeConfigReady = false,
   runtimeConfigLoading = false,
   onInactiveModuleClick,
+  onConversationViewModeChange,
   onFlashtalkRecordStart,
   onFlashtalkRecordStop,
   onFlashtalkRecordSave,
@@ -114,6 +119,27 @@ export function TopBar({
       </nav>
 
       <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">
+        {workflow === "realtime" ? (
+          <div className="hidden rounded-lg bg-slate-100 p-1 sm:flex" aria-label="实时对话视图">
+            {[
+              ["studio", "工作台"],
+              ["immersive", "沉浸"],
+            ].map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => onConversationViewModeChange?.(id as ConversationViewMode)}
+                className={`rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${
+                  conversationViewMode === id
+                    ? "bg-white text-cyan-700 shadow-sm"
+                    : "text-slate-500 hover:bg-white/70 hover:text-slate-700"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        ) : null}
         {flashtalkRecording ? (
           <div className="flex flex-wrap items-center justify-end gap-1.5">
             {flashtalkRecordPhase === "idle" ? (

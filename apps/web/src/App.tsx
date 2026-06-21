@@ -3,6 +3,7 @@ import { AvatarSelectionStage, type AgentConfig } from "./components/AvatarSelec
 import { BailianVoiceClone } from "./components/BailianVoiceClone";
 import { ChatInput } from "./components/ChatInput";
 import { ChatMessages } from "./components/ChatMessages";
+import { ImmersiveConversation } from "./components/ImmersiveConversation";
 import {
   DEFAULT_FASTLIVEPORTRAIT_CONFIG,
   SETTINGS_DOCK_EXPANDED_KEY,
@@ -12,7 +13,7 @@ import {
 } from "./components/SettingsPanel";
 import { RuntimeConfigWorkspace } from "./components/RuntimeConfigWorkspace";
 import { SceneStage } from "./components/SceneStage";
-import { TopBar, type StudioWorkflow } from "./components/TopBar";
+import { TopBar, type ConversationViewMode, type StudioWorkflow } from "./components/TopBar";
 import { ToastStack, type ToastMessage, type ToastTone } from "./components/ToastStack";
 import { AssetLibraryWorkspace, type AssetLibraryTab } from "./components/AssetLibraryWorkspace";
 import { VideoCloneWorkspace } from "./components/VideoCloneWorkspace";
@@ -191,6 +192,7 @@ const CLIENT_USER_ID_KEY = "opentalking-client-user-id";
 const AGENT_CONFIG_STORAGE_KEY = "opentalking-agent-config-v1";
 const SELECTED_PERSONA_STORAGE_KEY = "opentalking-selected-persona-id-v1";
 const SELECTED_SCENE_STORAGE_KEY = "opentalking-selected-scene-id-v1";
+const CONVERSATION_VIEW_MODE_KEY = "opentalking-conversation-view-mode-v1";
 const LEGACY_FASTLIVEPORTRAIT_DEFAULT_CONFIG: FasterLivePortraitConfig = {
   head_motion_multiplier: 1.0,
   pose_motion_multiplier: 0.35,
@@ -977,6 +979,13 @@ export default function App() {
   const [ftRecordPhase, setFtRecordPhase] = useState<"idle" | "recording" | "stopped">("idle");
   const [ftRecordBusy, setFtRecordBusy] = useState(false);
   const [assetLibraryRefreshKey, setAssetLibraryRefreshKey] = useState(0);
+  const [conversationViewMode, setConversationViewMode] = useState<ConversationViewMode>(() => {
+    try {
+      return window.localStorage.getItem(CONVERSATION_VIEW_MODE_KEY) === "immersive" ? "immersive" : "studio";
+    } catch {
+      return "studio";
+    }
+  });
   const [voiceCatalog, setVoiceCatalog] = useState<VoiceCatalogItem[]>([]);
   const [voiceApplyNotice, setVoiceApplyNotice] = useState<string | null>(null);
   const [ttsPreviewText, setTtsPreviewText] = useState(DEFAULT_TTS_PREVIEW_TEXT);
@@ -1306,6 +1315,19 @@ export default function App() {
       /* ignore */
     }
   }, [selectedSceneId]);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(CONVERSATION_VIEW_MODE_KEY, conversationViewMode);
+    } catch {
+      /* ignore */
+    }
+  }, [conversationViewMode]);
+
+  useEffect(() => {
+    const startupVisible = connection === "idle" || connection === "error" || connection === "connecting" || connection === "queued";
+    if (startupVisible && conversationViewMode === "immersive") setConversationViewMode("studio");
+  }, [connection, conversationViewMode]);
 
   useEffect(() => {
     if (selectedPersonaId) return;
@@ -2691,6 +2713,7 @@ export default function App() {
       <TopBar
         connection={connection}
         workflow={workflow}
+        conversationViewMode={conversationViewMode}
         flashtalkRecording={!!sessionId && (connection === "live" || connection === "expiring")}
         flashtalkRecordPhase={ftRecordPhase}
         flashtalkRecordBusy={ftRecordBusy}
@@ -2698,6 +2721,7 @@ export default function App() {
         runtimeConfigReady={runtimeConfigReady}
         runtimeConfigLoading={runtimeConfigLoading}
         onInactiveModuleClick={(label) => notify(`${label}模块规划中。当前可用的是实时对话、视频克隆、数字人配置、语音驱动和导出能力。`, "info")}
+        onConversationViewModeChange={setConversationViewMode}
         onWorkflowChange={(next) => {
           setWorkflow(next);
           if (next === "videoClone" && sessionIdRef.current) {
@@ -2810,6 +2834,31 @@ export default function App() {
             onRuntimeConfigApply={handleApplyRuntimeConfig}
           />
         </div>
+      ) : workflow === "realtime" && conversationViewMode === "immersive" ? (
+        <ImmersiveConversation
+          videoRef={videoRef}
+          scene={selectedScene}
+          backgrounds={sceneBackgrounds}
+          connection={connection}
+          sessionId={sessionId}
+          subtitle={currentSubtitle}
+          currentAvatarName={currentAvatar?.name ?? currentAvatar?.id ?? "未选形象"}
+          modelLabel={MODEL_LABELS_FOR_STAGE[model] ?? model}
+          isSpeaking={isSpeaking}
+          ttsProvider={ttsProvider}
+          sttProvider={activeAsrProvider}
+          edgeVoice={edgeVoice}
+          qwenModel={qwenModel}
+          qwenVoice={qwenVoice}
+          onExit={() => setConversationViewMode("studio")}
+          onSend={handleSend}
+          onSpeakAudio={handleSpeakAudio}
+          onSpeakFlashtalkAudioFile={isFlashRenderer(model) ? handleSpeakFlashtalkAudioFile : undefined}
+          onSpeakAudioStreamResult={handleSpeakAudioStreamResult}
+          onSpeakAudioStreamError={handleSpeakAudioStreamError}
+          onInterrupt={handleInterrupt}
+          onNotify={notify}
+        />
       ) : (
       <div className="flex min-h-0 flex-col lg:h-[calc(100vh-3.5rem)] lg:flex-row">
         <div className="order-2 min-h-0 lg:order-none lg:h-full lg:shrink-0">
