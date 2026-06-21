@@ -31,7 +31,7 @@ export const VideoBackground = forwardRef<HTMLVideoElement, VideoBackgroundProps
         className={className ?? "absolute inset-0 h-full w-full object-contain"}
         autoPlay
         playsInline
-        muted
+        muted={!stream}
       />
     );
   },

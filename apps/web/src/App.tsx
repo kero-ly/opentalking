@@ -3,7 +3,6 @@ import { AvatarSelectionStage, type AgentConfig } from "./components/AvatarSelec
 import { BailianVoiceClone } from "./components/BailianVoiceClone";
 import { ChatInput } from "./components/ChatInput";
 import { ChatMessages } from "./components/ChatMessages";
-import { ImmersiveConversation } from "./components/ImmersiveConversation";
 import {
   DEFAULT_FASTLIVEPORTRAIT_CONFIG,
   SETTINGS_DOCK_EXPANDED_KEY,
@@ -1644,21 +1643,6 @@ export default function App() {
   }, [sessionId]);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (video.srcObject !== remoteStream) {
-      video.srcObject = remoteStream;
-    }
-    if (remoteStream) {
-      video.muted = false;
-      video.volume = 1;
-      void video.play().catch(() => {});
-    } else {
-      video.muted = true;
-    }
-  }, [conversationViewMode, remoteStream, workflow]);
-
-  useEffect(() => {
     return () => {
       if (ttsPreviewUrlRef.current) {
         URL.revokeObjectURL(ttsPreviewUrlRef.current);
@@ -2871,33 +2855,15 @@ export default function App() {
             onRuntimeConfigApply={handleApplyRuntimeConfig}
           />
         </div>
-      ) : immersiveActive ? (
-        <ImmersiveConversation
-          videoRef={videoRef}
-          videoStream={remoteStream}
-          scene={selectedScene}
-          backgrounds={sceneBackgrounds}
-          connection={connection}
-          sessionId={sessionId}
-          subtitle={currentSubtitle}
-          isSpeaking={isSpeaking}
-          ttsProvider={ttsProvider}
-          sttProvider={activeAsrProvider}
-          edgeVoice={edgeVoice}
-          qwenModel={qwenModel}
-          qwenVoice={qwenVoice}
-          onExit={() => setConversationViewMode("studio")}
-          onSend={handleSend}
-          onSpeakAudio={handleSpeakAudio}
-          onSpeakFlashtalkAudioFile={isFlashRenderer(model) ? handleSpeakFlashtalkAudioFile : undefined}
-          onSpeakAudioStreamResult={handleSpeakAudioStreamResult}
-          onSpeakAudioStreamError={handleSpeakAudioStreamError}
-          onInterrupt={handleInterrupt}
-          onNotify={notify}
-        />
       ) : (
-      <div className="flex min-h-0 flex-col lg:h-[calc(100vh-3.5rem)] lg:flex-row">
-        <div className="order-2 min-h-0 lg:order-none lg:h-full lg:shrink-0">
+      <div
+        className={
+          immersiveActive
+            ? "relative flex h-dvh min-h-0 flex-col bg-slate-950"
+            : "flex min-h-0 flex-col lg:h-[calc(100vh-3.5rem)] lg:flex-row"
+        }
+      >
+        <div className={`${immersiveActive ? "hidden" : "order-2 min-h-0 lg:order-none lg:h-full lg:shrink-0"}`}>
           <SettingsPanel
             expanded={settingsExpanded}
             onExpandedChange={setSettingsExpanded}
@@ -2961,9 +2927,27 @@ export default function App() {
           />
         </div>
 
-        <main className="order-1 flex min-h-0 flex-1 flex-col bg-slate-100 lg:order-none">
-          <div className="flex min-h-0 flex-1 flex-col p-4">
-            <div className="relative min-h-[360px] flex-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/70 lg:min-h-[420px]">
+        <main
+          className={
+            immersiveActive
+              ? "order-1 flex min-h-0 flex-1 flex-col overflow-hidden bg-slate-950 lg:order-none"
+              : "order-1 flex min-h-0 flex-1 flex-col bg-slate-100 lg:order-none"
+          }
+        >
+          <div
+            className={
+              immersiveActive
+                ? "relative flex min-h-0 flex-1 flex-col overflow-hidden"
+                : "flex min-h-0 flex-1 flex-col p-4"
+            }
+          >
+            <div
+              className={
+                immersiveActive
+                  ? "relative min-h-0 flex-1 overflow-hidden bg-black"
+                  : "relative min-h-[360px] flex-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/70 lg:min-h-[420px]"
+              }
+            >
               <SceneStage
                 videoRef={videoRef}
                 videoStream={remoteStream}
@@ -2973,32 +2957,44 @@ export default function App() {
                 compactSquareStage={compactSquareStage}
                 className="h-full w-full"
               >
-                <div className="absolute left-4 right-4 top-4 z-30 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="flex min-w-0 flex-wrap gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/90 px-2.5 py-1 text-xs font-medium text-slate-700 shadow-sm">
-                      <span className={`h-1.5 w-1.5 rounded-full ${
-                        connection === "live" || connection === "expiring" ? "bg-emerald-500" : "bg-slate-400"
-                      }`} />
-                      {connection === "live" || connection === "expiring" ? "已连接" : "待启动"}
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full border border-cyan-200 bg-cyan-50 px-2.5 py-1 text-xs font-medium text-cyan-700 shadow-sm">
-                      WebRTC 舞台
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 shadow-sm">
-                      {MODEL_LABELS_FOR_STAGE[model] ?? model}
-                    </span>
-                    <span className="inline-flex max-w-[14rem] items-center gap-1 truncate rounded-full border border-slate-200 bg-white/90 px-2.5 py-1 text-xs font-medium text-slate-600 shadow-sm">
-                      {currentAvatar?.name ?? currentAvatar?.id ?? "未选形象"}
-                    </span>
+                {immersiveActive ? (
+                  <div className="absolute right-0 top-0 z-30 flex h-24 w-48 items-start justify-end p-4">
+                    <button
+                      type="button"
+                      onClick={() => setConversationViewMode("studio")}
+                      className="rounded-lg border border-white/15 bg-slate-950/45 px-3 py-2 text-xs font-semibold text-white opacity-0 shadow-lg backdrop-blur transition hover:bg-slate-950/65 hover:opacity-100 focus:opacity-100"
+                    >
+                      返回工作台
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleReturnToAvatarSelection}
-                    className="shrink-0 rounded-lg border border-slate-200 bg-white/95 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-cyan-200 hover:text-cyan-700"
-                  >
-                    更换形象
-                  </button>
-                </div>
+                ) : (
+                  <div className="absolute left-4 right-4 top-4 z-30 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex min-w-0 flex-wrap gap-2">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/90 px-2.5 py-1 text-xs font-medium text-slate-700 shadow-sm">
+                        <span className={`h-1.5 w-1.5 rounded-full ${
+                          connection === "live" || connection === "expiring" ? "bg-emerald-500" : "bg-slate-400"
+                        }`} />
+                        {connection === "live" || connection === "expiring" ? "已连接" : "待启动"}
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full border border-cyan-200 bg-cyan-50 px-2.5 py-1 text-xs font-medium text-cyan-700 shadow-sm">
+                        WebRTC 舞台
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 shadow-sm">
+                        {MODEL_LABELS_FOR_STAGE[model] ?? model}
+                      </span>
+                      <span className="inline-flex max-w-[14rem] items-center gap-1 truncate rounded-full border border-slate-200 bg-white/90 px-2.5 py-1 text-xs font-medium text-slate-600 shadow-sm">
+                        {currentAvatar?.name ?? currentAvatar?.id ?? "未选形象"}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleReturnToAvatarSelection}
+                      className="shrink-0 rounded-lg border border-slate-200 bg-white/95 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-cyan-200 hover:text-cyan-700"
+                    >
+                      更换形象
+                    </button>
+                  </div>
+                )}
               </SceneStage>
 
               {showStart ? (
@@ -3034,7 +3030,13 @@ export default function App() {
             </div>
 
             {connection === "live" || connection === "expiring" ? (
-            <div className="mt-4">
+            <div
+              className={
+                immersiveActive
+                  ? "absolute inset-x-3 bottom-3 z-30 mx-auto max-w-4xl sm:bottom-5"
+                  : "mt-4"
+              }
+            >
               <ChatInput
                 onSend={handleSend}
                 onSpeakAudio={handleSpeakAudio}
@@ -3061,9 +3063,13 @@ export default function App() {
         </main>
 
         <aside
-          className={`order-3 min-h-0 overflow-hidden border-l border-slate-200 bg-white transition-[width] duration-200 lg:shrink-0 ${
-            sessionPanelCollapsed ? "lg:w-12" : "lg:w-[360px]"
-          }`}
+          className={
+            immersiveActive
+              ? "hidden"
+              : `order-3 min-h-0 overflow-hidden border-l border-slate-200 bg-white transition-[width] duration-200 lg:shrink-0 ${
+                  sessionPanelCollapsed ? "lg:w-12" : "lg:w-[360px]"
+                }`
+          }
         >
           <div className="flex h-full min-h-0">
             <div className="flex w-12 shrink-0 flex-col items-center justify-center gap-4 border-r border-slate-100 bg-slate-50 py-3">
