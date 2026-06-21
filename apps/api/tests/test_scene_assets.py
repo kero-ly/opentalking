@@ -7,6 +7,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
+import apps.unified.main as unified_main
 from apps.api.routes import scene_assets
 from opentalking.scene_assets import SceneAssetStore
 
@@ -278,3 +279,12 @@ def test_scene_asset_api_rejects_unknown_background_id(tmp_path: Path) -> None:
         )
         assert created.status_code == 400
         assert created.json()["detail"] == "background_id not found"
+
+
+def test_unified_app_registers_scene_asset_routes() -> None:
+    app = unified_main.create_app()
+
+    paths = {getattr(route, "path", "") for route in app.routes}
+
+    assert "/scene-assets/backgrounds" in paths
+    assert "/scene-assets/compositions" in paths
