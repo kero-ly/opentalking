@@ -187,3 +187,14 @@ def test_scene_asset_api_manages_compositions(tmp_path: Path) -> None:
         listed = client.get("/scene-assets/compositions")
         assert listed.status_code == 200
         assert listed.json()["items"][0]["id"] == scene["id"]
+
+        deleted = client.delete(f"/scene-assets/compositions/{scene['id']}")
+        assert deleted.status_code == 200
+        assert deleted.json() == {"id": scene["id"], "deleted": True}
+
+        listed_after_delete = client.get("/scene-assets/compositions")
+        assert listed_after_delete.status_code == 200
+        assert listed_after_delete.json()["items"] == []
+
+        deleted_again = client.delete(f"/scene-assets/compositions/{scene['id']}")
+        assert deleted_again.status_code == 404
