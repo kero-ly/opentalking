@@ -1,4 +1,4 @@
-import { useEffect, useState, type RefObject } from "react";
+import { useEffect, type RefObject } from "react";
 import type { TtsProviderExtended } from "../constants/ttsBailian";
 import type { SceneBackgroundAsset, SceneComposition } from "../lib/api";
 import type { ConnectionStatus } from "../types";
@@ -13,8 +13,6 @@ type ImmersiveConversationProps = {
   connection: ConnectionStatus;
   sessionId: string | null;
   subtitle: string | null;
-  currentAvatarName: string;
-  modelLabel: string;
   isSpeaking: boolean;
   ttsProvider: TtsProviderExtended;
   sttProvider: string;
@@ -39,8 +37,6 @@ export function ImmersiveConversation({
   connection,
   sessionId,
   subtitle,
-  currentAvatarName,
-  modelLabel,
   isSpeaking,
   ttsProvider,
   sttProvider,
@@ -56,12 +52,14 @@ export function ImmersiveConversation({
   onInterrupt,
   onNotify,
 }: ImmersiveConversationProps) {
-  const [demoMode, setDemoMode] = useState(false);
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const editing = target
+        ? ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) || target.isContentEditable
+        : false;
+      if (editing) return;
       if (event.key === "Escape") onExit();
-      if (event.key.toLowerCase() === "h") setDemoMode((value) => !value);
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -70,7 +68,7 @@ export function ImmersiveConversation({
   const live = connection === "live" || connection === "expiring";
 
   return (
-    <main className="relative h-[calc(100dvh-3.5rem)] min-h-0 overflow-hidden bg-slate-950 text-white">
+    <main className="relative h-dvh min-h-0 overflow-hidden bg-slate-950 text-white">
       <SceneStage
         videoRef={videoRef}
         videoStream={videoStream}
@@ -79,42 +77,17 @@ export function ImmersiveConversation({
         subtitle={subtitle}
         className="h-full w-full"
       >
-        {!demoMode ? (
-          <div className="immersive-controls absolute inset-x-0 top-0 z-30 flex items-start justify-between gap-3 p-4">
-            <div className="min-w-0 rounded-lg border border-white/15 bg-slate-950/55 px-3 py-2 shadow-lg backdrop-blur">
-              <p className="truncate text-sm font-semibold">{currentAvatarName}</p>
-              <p className="mt-0.5 truncate text-xs text-white/70">
-                {modelLabel} · {live ? "已连接" : "待连接"}
-              </p>
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setDemoMode(true)}
-                className="rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-xs font-semibold text-white transition hover:bg-white/20"
-              >
-                演示模式
-              </button>
-              <button
-                type="button"
-                onClick={onExit}
-                className="rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-xs font-semibold text-white transition hover:bg-white/20"
-              >
-                返回工作台
-              </button>
-            </div>
-          </div>
-        ) : (
+        <div className="absolute right-0 top-0 z-30 flex h-24 w-48 items-start justify-end p-4">
           <button
             type="button"
-            onClick={() => setDemoMode(false)}
-            className="absolute right-4 top-4 z-30 rounded-lg border border-white/15 bg-slate-950/45 px-3 py-2 text-xs font-semibold text-white opacity-0 transition hover:opacity-100 focus:opacity-100"
+            onClick={onExit}
+            className="rounded-lg border border-white/15 bg-slate-950/45 px-3 py-2 text-xs font-semibold text-white opacity-0 shadow-lg backdrop-blur transition hover:bg-slate-950/65 hover:opacity-100 focus:opacity-100"
           >
-            显示控件
+            返回工作台
           </button>
-        )}
+        </div>
 
-        {!demoMode && live ? (
+        {live ? (
           <div className="absolute inset-x-3 bottom-3 z-30 mx-auto max-w-4xl sm:bottom-5">
             <ChatInput
               onSend={onSend}

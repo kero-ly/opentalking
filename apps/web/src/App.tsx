@@ -2702,6 +2702,7 @@ export default function App() {
   const effectiveAsrProvider = activeAsrProvider || normalizeAsrProvider(asrProvider, "dashscope");
   const showStart = connection === "idle" || connection === "error" || connection === "connecting" || connection === "queued";
   const effectiveConversationViewMode = showStart ? "studio" : conversationViewMode;
+  const immersiveActive = workflow === "realtime" && effectiveConversationViewMode === "immersive";
   const chatMaxVisible = readChatMaxVisible();
   const selectedModelLabel = MODEL_LABELS_FOR_STAGE[model] ?? model;
   const wav2lipPostprocessModeLocked = sessionId !== null && connection !== "idle" && connection !== "error";
@@ -2738,6 +2739,7 @@ export default function App() {
         connection={connection}
         workflow={workflow}
         conversationViewMode={effectiveConversationViewMode}
+        immersiveChrome={immersiveActive}
         flashtalkRecording={!!sessionId && (connection === "live" || connection === "expiring")}
         flashtalkRecordPhase={ftRecordPhase}
         flashtalkRecordBusy={ftRecordBusy}
@@ -2861,7 +2863,7 @@ export default function App() {
             onRuntimeConfigApply={handleApplyRuntimeConfig}
           />
         </div>
-      ) : workflow === "realtime" && effectiveConversationViewMode === "immersive" ? (
+      ) : immersiveActive ? (
         <ImmersiveConversation
           videoRef={videoRef}
           videoStream={remoteStream}
@@ -2870,8 +2872,6 @@ export default function App() {
           connection={connection}
           sessionId={sessionId}
           subtitle={currentSubtitle}
-          currentAvatarName={currentAvatar?.name ?? currentAvatar?.id ?? "未选形象"}
-          modelLabel={MODEL_LABELS_FOR_STAGE[model] ?? model}
           isSpeaking={isSpeaking}
           ttsProvider={ttsProvider}
           sttProvider={activeAsrProvider}
