@@ -17,7 +17,11 @@ export const VideoBackground = forwardRef<HTMLVideoElement, VideoBackgroundProps
         video.srcObject = stream ?? null;
       }
       if (stream) {
+        video.muted = false;
+        video.volume = 1;
         void video.play().catch(() => {});
+      } else {
+        video.muted = true;
       }
     }, [stream]);
 
