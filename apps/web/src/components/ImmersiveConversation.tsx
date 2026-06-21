@@ -7,6 +7,7 @@ import { SceneStage } from "./SceneStage";
 
 type ImmersiveConversationProps = {
   videoRef: RefObject<HTMLVideoElement>;
+  videoStream?: MediaStream | null;
   scene: SceneComposition | null;
   backgrounds: SceneBackgroundAsset[];
   connection: ConnectionStatus;
@@ -32,6 +33,7 @@ type ImmersiveConversationProps = {
 
 export function ImmersiveConversation({
   videoRef,
+  videoStream = null,
   scene,
   backgrounds,
   connection,
@@ -71,6 +73,7 @@ export function ImmersiveConversation({
     <main className="relative h-[calc(100dvh-3.5rem)] min-h-0 overflow-hidden bg-slate-950 text-white">
       <SceneStage
         videoRef={videoRef}
+        videoStream={videoStream}
         scene={scene}
         backgrounds={backgrounds}
         subtitle={subtitle}

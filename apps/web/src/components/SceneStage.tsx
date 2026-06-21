@@ -5,6 +5,7 @@ import { VideoBackground } from "./VideoBackground";
 
 type SceneStageProps = {
   videoRef: RefObject<HTMLVideoElement>;
+  videoStream?: MediaStream | null;
   scene: SceneComposition | null;
   backgrounds: SceneBackgroundAsset[];
   subtitle?: string | null;
@@ -40,6 +41,7 @@ const AVATAR_ANCHOR_TRANSFORM_ORIGINS = {
 
 export function SceneStage({
   videoRef,
+  videoStream = null,
   scene,
   backgrounds,
   subtitle,
@@ -56,10 +58,11 @@ export function SceneStage({
   const avatarAnchorClass = AVATAR_ANCHOR_CLASSES[avatarAnchor as keyof typeof AVATAR_ANCHOR_CLASSES] ?? AVATAR_ANCHOR_CLASSES.center;
   const avatarObjectPosition = AVATAR_ANCHOR_OBJECT_POSITIONS[avatarAnchor as keyof typeof AVATAR_ANCHOR_OBJECT_POSITIONS] ?? AVATAR_ANCHOR_OBJECT_POSITIONS.center;
   const avatarTransformOrigin = AVATAR_ANCHOR_TRANSFORM_ORIGINS[avatarAnchor as keyof typeof AVATAR_ANCHOR_TRANSFORM_ORIGINS] ?? AVATAR_ANCHOR_TRANSFORM_ORIGINS.center;
-  const backgroundColor = scene?.background_color || "#0f172a";
+  const hasSceneBackground = Boolean(scene);
+  const backgroundColor = scene?.background_color || "#ffffff";
 
   return (
-    <div className={`relative min-h-0 overflow-hidden bg-slate-950 ${className}`}>
+    <div className={`relative min-h-0 overflow-hidden ${hasSceneBackground ? "bg-slate-950" : "bg-white"} ${className}`}>
       <div className="scene-background-layer absolute inset-0" style={{ backgroundColor }}>
         {background?.kind === "image" ? (
           <img src={backgroundUrl(background)} alt={background.name} className="h-full w-full object-cover" />
@@ -67,7 +70,7 @@ export function SceneStage({
         {background?.kind === "video" ? (
           <video src={backgroundUrl(background)} className="h-full w-full object-cover" autoPlay muted loop playsInline />
         ) : null}
-        <div className="absolute inset-0 bg-slate-950/10" />
+        {hasSceneBackground ? <div className="absolute inset-0 bg-slate-950/10" /> : null}
       </div>
 
       <div className={`absolute inset-0 flex p-4 sm:p-6 lg:p-8 ${avatarAnchorClass}`}>
@@ -79,7 +82,7 @@ export function SceneStage({
           }
           style={{ transform: `scale(${scene?.avatar_scale ?? 1})`, transformOrigin: avatarTransformOrigin }}
         >
-          <VideoBackground ref={videoRef} className={`absolute inset-0 h-full w-full ${avatarFit} ${avatarObjectPosition}`} />
+          <VideoBackground ref={videoRef} stream={videoStream} className={`absolute inset-0 h-full w-full ${avatarFit} ${avatarObjectPosition}`} />
         </div>
       </div>
 

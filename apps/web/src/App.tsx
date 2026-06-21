@@ -893,6 +893,7 @@ export default function App() {
   // Connection
   const [connection, setConnection] = useState<ConnectionStatus>("idle");
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [queueInfo, setQueueInfo] = useState<QueueInfo | null>(null);
   const [expiringCountdown, setExpiringCountdown] = useState<number | null>(null);
 
@@ -1639,6 +1640,17 @@ export default function App() {
   }, [sessionId]);
 
   useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.srcObject !== remoteStream) {
+      video.srcObject = remoteStream;
+    }
+    if (remoteStream) {
+      void video.play().catch(() => {});
+    }
+  }, [conversationViewMode, remoteStream, workflow]);
+
+  useEffect(() => {
     return () => {
       if (ttsPreviewUrlRef.current) {
         URL.revokeObjectURL(ttsPreviewUrlRef.current);
@@ -1734,6 +1746,7 @@ export default function App() {
       for (const track of remoteStreamRef.current.getTracks()) track.stop();
       remoteStreamRef.current = null;
     }
+    setRemoteStream(null);
   }, []);
 
   const releaseSession = useCallback(async (sid: string, keepalive = false) => {
@@ -2125,10 +2138,12 @@ export default function App() {
       const playback = await startPlayback(created.session_id, videoRef.current!, {
         onRemoteStream: (remoteStream) => {
           remoteStreamRef.current = remoteStream;
+          setRemoteStream(remoteStream);
         },
       });
       pcRef.current = playback.pc;
       remoteStreamRef.current = playback.remoteStream;
+      setRemoteStream(playback.remoteStream);
       setActiveAsrProvider(lockedAsrProvider);
       videoRef.current!.muted = false;
       setConnection("live");
@@ -2849,6 +2864,7 @@ export default function App() {
       ) : workflow === "realtime" && effectiveConversationViewMode === "immersive" ? (
         <ImmersiveConversation
           videoRef={videoRef}
+          videoStream={remoteStream}
           scene={selectedScene}
           backgrounds={sceneBackgrounds}
           connection={connection}
@@ -2942,6 +2958,7 @@ export default function App() {
             <div className="relative min-h-[360px] flex-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/70 lg:min-h-[420px]">
               <SceneStage
                 videoRef={videoRef}
+                videoStream={remoteStream}
                 scene={showStart ? null : selectedScene}
                 backgrounds={sceneBackgrounds}
                 subtitle={!showStart ? currentSubtitle : null}
