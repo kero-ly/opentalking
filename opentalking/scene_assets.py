@@ -103,6 +103,8 @@ class SceneAssetStore:
         return path if path.is_file() else None
 
     def delete_background(self, background_id: str) -> bool:
+        if not re.fullmatch(r"bg-[\w\u4e00-\u9fff-]+", background_id or ""):
+            return False
         items = self.list_backgrounds()
         next_items = [item for item in items if item.get("id") != background_id]
         if len(next_items) == len(items):
@@ -157,7 +159,8 @@ class SceneAssetStore:
         avatar_fit = str(payload.get("avatar_fit") or "contain").strip()
         avatar_anchor = str(payload.get("avatar_anchor") or "center").strip()
         subtitle_style = str(payload.get("subtitle_style") or "lower-third").strip()
-        avatar_scale = float(payload.get("avatar_scale") or 1.0)
+        raw_avatar_scale = payload.get("avatar_scale")
+        avatar_scale = 1.0 if raw_avatar_scale is None else float(raw_avatar_scale)
         if avatar_fit not in VALID_AVATAR_FITS:
             raise ValueError("invalid avatar_fit")
         if avatar_anchor not in VALID_AVATAR_ANCHORS:

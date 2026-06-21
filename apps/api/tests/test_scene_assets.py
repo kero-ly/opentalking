@@ -48,6 +48,36 @@ def test_scene_asset_store_rejects_unsupported_background_type(tmp_path: Path) -
         )
 
 
+def test_scene_asset_store_rejects_zero_avatar_scale(tmp_path: Path) -> None:
+    store = SceneAssetStore(tmp_path)
+
+    with pytest.raises(ValueError, match="avatar_scale must be between 0.5 and 2.0"):
+        store.create_composition(
+            {
+                "name": "Zero Scale",
+                "avatar_id": "anchor",
+                "avatar_scale": 0,
+            }
+        )
+
+
+def test_scene_asset_store_rejects_unsafe_background_delete_id(tmp_path: Path) -> None:
+    store = SceneAssetStore(tmp_path / "assets")
+    outside_dir = tmp_path / "outside"
+    outside_dir.mkdir()
+    (outside_dir / "keep.txt").write_text("keep", encoding="utf-8")
+
+    unsafe_id = f"bg-valid/../../{outside_dir.name}"
+    store.backgrounds_dir.mkdir(parents=True)
+    store.background_index_path.write_text(
+        f'[{{"id": "{unsafe_id}", "mime_type": "image/png"}}]\n',
+        encoding="utf-8",
+    )
+
+    assert store.delete_background(unsafe_id) is False
+    assert (outside_dir / "keep.txt").is_file()
+
+
 def test_scene_asset_store_creates_and_updates_composition(tmp_path: Path) -> None:
     store = SceneAssetStore(tmp_path)
     background = store.create_background(
