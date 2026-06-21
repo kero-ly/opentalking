@@ -693,6 +693,30 @@ export function AssetLibraryWorkspace({
     }
   }, [onNotify, onSceneCompositionsChange, sceneAvatarId, sceneBackgroundId, sceneCompositions, sceneName]);
 
+  const handleDeleteSceneBackground = useCallback(async (background: SceneBackgroundAsset) => {
+    try {
+      await deleteSceneBackground(background.id);
+      await loadScenes();
+      onNotify?.("背景资产已删除。", "success");
+    } catch (err) {
+      console.warn("delete scene background failed", err);
+      const detail = err instanceof ApiError ? err.detail : null;
+      onNotify?.(detail ? `删除失败：${detail}` : "删除失败，请稍后重试。", "error");
+    }
+  }, [loadScenes, onNotify]);
+
+  const handleDeleteSceneComposition = useCallback(async (scene: SceneComposition) => {
+    try {
+      await deleteSceneComposition(scene.id);
+      await loadScenes();
+      onNotify?.("场景组合已删除。", "success");
+    } catch (err) {
+      console.warn("delete scene composition failed", err);
+      const detail = err instanceof ApiError ? err.detail : null;
+      onNotify?.(detail ? `删除失败：${detail}` : "删除失败，请稍后重试。", "error");
+    }
+  }, [loadScenes, onNotify]);
+
   const handleUploadKnowledgeDocuments = useCallback(async () => {
     if (!selectedKnowledgeId || uploadDisabled) return;
     setDocumentActionId("__upload__");
@@ -1044,7 +1068,7 @@ export function AssetLibraryWorkspace({
               <p className="mt-1 text-xs text-slate-500">{background.kind} · {formatSize(background.size_bytes)}</p>
               <button
                 type="button"
-                onClick={() => void deleteSceneBackground(background.id).then(loadScenes)}
+                onClick={() => void handleDeleteSceneBackground(background)}
                 className="mt-2 text-xs font-semibold text-rose-600 hover:text-rose-500"
               >
                 删除
@@ -1116,7 +1140,7 @@ export function AssetLibraryWorkspace({
               </p>
               <button
                 type="button"
-                onClick={() => void deleteSceneComposition(scene.id).then(loadScenes)}
+                onClick={() => void handleDeleteSceneComposition(scene)}
                 className="mt-2 text-xs font-semibold text-rose-600 hover:text-rose-500"
               >
                 删除

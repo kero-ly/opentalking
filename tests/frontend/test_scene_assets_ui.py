@@ -23,3 +23,27 @@ def test_asset_library_has_scene_assets_tab() -> None:
     assert "场景组合" in source
     assert "uploadSceneBackground" in source
     assert "createSceneComposition" in source
+
+
+def test_app_passes_avatars_to_asset_library_workspace() -> None:
+    source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
+
+    asset_library_mount = source.split('workflow === "assetLibrary" ? (', 1)[1].split(
+        ') : workflow === "videoCreation" ? (',
+        1,
+    )[0]
+    assert "<AssetLibraryWorkspace" in asset_library_mount
+    assert "avatars={avatars}" in asset_library_mount
+
+
+def test_scene_delete_actions_use_error_handled_handlers() -> None:
+    source = Path("apps/web/src/components/AssetLibraryWorkspace.tsx").read_text(encoding="utf-8")
+
+    assert "const handleDeleteSceneBackground = useCallback(async (background: SceneBackgroundAsset)" in source
+    assert "const handleDeleteSceneComposition = useCallback(async (scene: SceneComposition)" in source
+    assert "delete scene background failed" in source
+    assert "delete scene composition failed" in source
+    assert "err instanceof ApiError ? err.detail : null" in source
+    assert "onNotify?.(detail ? `删除失败：${detail}` : \"删除失败，请稍后重试。\", \"error\")" in source
+    assert "await loadScenes()" in source
+    assert ".then(loadScenes)" not in source

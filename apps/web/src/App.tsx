@@ -2708,6 +2708,7 @@ export default function App() {
             onMemoryEnabledChange={setMemoryEnabled}
             onMemoryLibrariesChange={setMemoryLibraries}
             onRefreshMemoryLibraries={() => void refreshMemoryLibraries()}
+            avatars={avatars}
           />
         </div>
       ) : workflow === "videoCreation" ? (
