@@ -838,6 +838,7 @@ function cloneMediaStream(stream: MediaStream): MediaStream {
 
 export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const remoteStreamRef = useRef<MediaStream | null>(null);
   const realtimeRecorderRef = useRef<MediaRecorder | null>(null);
@@ -1641,6 +1642,37 @@ export default function App() {
   useEffect(() => {
     sessionIdRef.current = sessionId;
   }, [sessionId]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.srcObject !== remoteStream) {
+      video.srcObject = remoteStream;
+    }
+    if (remoteStream) {
+      video.muted = false;
+      video.volume = 1;
+      void video.play().catch(() => {});
+    } else {
+      video.muted = true;
+    }
+  }, [conversationViewMode, remoteStream, workflow]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (!remoteStream) {
+      audio.srcObject = null;
+      return;
+    }
+    audio.srcObject = remoteStream;
+    audio.muted = false;
+    audio.volume = 1;
+    void audio.play().catch(() => {});
+    return () => {
+      audio.srcObject = null;
+    };
+  }, [remoteStream]);
 
   useEffect(() => {
     return () => {
@@ -2727,6 +2759,7 @@ export default function App() {
   };
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 lg:h-screen lg:overflow-hidden">
+      <audio ref={audioRef} autoPlay playsInline className="hidden" />
       <TopBar
         connection={connection}
         workflow={workflow}
@@ -2944,7 +2977,7 @@ export default function App() {
             <div
               className={
                 immersiveActive
-                  ? "relative min-h-0 flex-1 overflow-hidden bg-black"
+                  ? "absolute inset-x-0 top-0 bottom-12 overflow-hidden bg-black sm:bottom-14"
                   : "relative min-h-[360px] flex-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/70 lg:min-h-[420px]"
               }
             >
@@ -3033,10 +3066,15 @@ export default function App() {
             <div
               className={
                 immersiveActive
-                  ? "absolute inset-x-3 bottom-3 z-30 mx-auto max-w-4xl sm:bottom-5"
+                  ? "group absolute inset-x-3 bottom-0 z-30 mx-auto max-w-4xl translate-y-[calc(100%-1.25rem)] pb-3 transition-transform duration-200 hover:translate-y-0 focus-within:translate-y-0 sm:pb-5"
                   : "mt-4"
               }
             >
+              {immersiveActive ? (
+                <div className="pointer-events-none mb-2 flex justify-center opacity-100 transition-opacity duration-150 group-hover:opacity-0 group-focus-within:opacity-0">
+                  <div className="h-1.5 w-16 rounded-full bg-white/80 shadow-sm" />
+                </div>
+              ) : null}
               <ChatInput
                 onSend={handleSend}
                 onSpeakAudio={handleSpeakAudio}
