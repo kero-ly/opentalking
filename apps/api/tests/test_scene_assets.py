@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
+from apps.api.routes import scene_assets
 from opentalking.scene_assets import SceneAssetStore
 
 
@@ -113,3 +117,73 @@ def test_scene_asset_store_creates_and_updates_composition(tmp_path: Path) -> No
 
     assert store.delete_composition(str(created["id"])) is True
     assert store.list_compositions() == []
+
+
+def _client(tmp_path: Path) -> TestClient:
+    app = FastAPI()
+    app.state.settings = SimpleNamespace(scene_assets_dir=str(tmp_path / "scene-assets"))
+    app.include_router(scene_assets.router)
+    return TestClient(app)
+
+
+def test_scene_asset_api_uploads_lists_downloads_and_deletes_background(tmp_path: Path) -> None:
+    with _client(tmp_path) as client:
+        upload = client.post(
+            "/scene-assets/backgrounds",
+            data={"name": "Studio"},
+            files={"file": ("studio.png", PNG_BYTES, "image/png")},
+        )
+        assert upload.status_code == 200
+        item = upload.json()
+        assert item["name"] == "Studio"
+        assert item["url"] == f"/scene-assets/backgrounds/{item['id']}/file"
+
+        listed = client.get("/scene-assets/backgrounds")
+        assert listed.status_code == 200
+        assert listed.json()["items"][0]["id"] == item["id"]
+
+        downloaded = client.get(item["url"])
+        assert downloaded.status_code == 200
+        assert downloaded.headers["content-type"].startswith("image/png")
+
+        deleted = client.delete(f"/scene-assets/backgrounds/{item['id']}")
+        assert deleted.status_code == 200
+        assert deleted.json()["deleted"] is True
+
+
+def test_scene_asset_api_manages_compositions(tmp_path: Path) -> None:
+    with _client(tmp_path) as client:
+        bg = client.post(
+            "/scene-assets/backgrounds",
+            data={"name": "Studio"},
+            files={"file": ("studio.png", PNG_BYTES, "image/png")},
+        ).json()
+
+        created = client.post(
+            "/scene-assets/compositions",
+            json={
+                "name": "Demo Scene",
+                "avatar_id": "anchor",
+                "background_id": bg["id"],
+                "avatar_fit": "contain",
+                "avatar_scale": 1.0,
+                "avatar_anchor": "center",
+                "matting_required": True,
+                "subtitle_style": "lower-third",
+            },
+        )
+        assert created.status_code == 200
+        scene = created.json()
+        assert scene["background_id"] == bg["id"]
+
+        patched = client.patch(
+            f"/scene-assets/compositions/{scene['id']}",
+            json={"name": "Updated Scene", "avatar_scale": 1.2},
+        )
+        assert patched.status_code == 200
+        assert patched.json()["name"] == "Updated Scene"
+        assert patched.json()["avatar_scale"] == 1.2
+
+        listed = client.get("/scene-assets/compositions")
+        assert listed.status_code == 200
+        assert listed.json()["items"][0]["id"] == scene["id"]
