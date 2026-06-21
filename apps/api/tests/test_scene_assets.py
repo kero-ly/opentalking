@@ -284,7 +284,7 @@ def test_scene_asset_api_rejects_unknown_background_id(tmp_path: Path) -> None:
 def test_unified_app_registers_scene_asset_routes() -> None:
     app = unified_main.create_app()
 
-    paths = {getattr(route, "path", "") for route in app.routes}
+    paths = set(app.openapi()["paths"])
 
     assert "/scene-assets/backgrounds" in paths
     assert "/scene-assets/compositions" in paths
