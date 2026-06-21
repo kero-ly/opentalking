@@ -506,6 +506,7 @@ export type AvatarSummary = {
   height: number;
   is_custom: boolean;
   has_preview_video: boolean;
+  matting_status: "unknown" | "opaque" | "transparent_ready";
 };
 
 export type CreateSessionResponse = { session_id: string; status: string };

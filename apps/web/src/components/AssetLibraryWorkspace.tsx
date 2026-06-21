@@ -1130,23 +1130,28 @@ export function AssetLibraryWorkspace({
           </button>
         </div>
         <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {sceneCompositions.length ? sceneCompositions.map((scene) => (
-            <article key={scene.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-              <p className="truncate text-sm font-semibold text-slate-950">{scene.name}</p>
-              <p className="mt-1 truncate text-xs text-slate-500">Avatar {scene.avatar_id}</p>
-              <p className="mt-1 truncate text-xs text-slate-500">Background {scene.background_id ?? scene.background_color}</p>
-              <p className="mt-2 rounded-md bg-white px-2 py-1 text-xs text-slate-600">
-                {scene.matting_required ? "建议使用已抠像/透明数字人" : "普通舞台模式"}
-              </p>
-              <button
-                type="button"
-                onClick={() => void handleDeleteSceneComposition(scene)}
-                className="mt-2 text-xs font-semibold text-rose-600 hover:text-rose-500"
-              >
-                删除
-              </button>
-            </article>
-          )) : (
+          {sceneCompositions.length ? sceneCompositions.map((scene) => {
+            const avatar = avatars?.find((item) => item.id === scene.avatar_id);
+            const mattingLabel = avatar?.matting_status === "transparent_ready" ? "已抠像/透明数字人" : "未抠像";
+            return (
+              <article key={scene.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <p className="truncate text-sm font-semibold text-slate-950">{scene.name}</p>
+                <p className="mt-1 truncate text-xs text-slate-500">Avatar {scene.avatar_id}</p>
+                <p className="mt-1 truncate text-xs text-slate-500">{mattingLabel}</p>
+                <p className="mt-1 truncate text-xs text-slate-500">Background {scene.background_id ?? scene.background_color}</p>
+                <p className="mt-2 rounded-md bg-white px-2 py-1 text-xs text-slate-600">
+                  {scene.matting_required ? "建议使用已抠像/透明数字人" : "普通舞台模式"}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void handleDeleteSceneComposition(scene)}
+                  className="mt-2 text-xs font-semibold text-rose-600 hover:text-rose-500"
+                >
+                  删除
+                </button>
+              </article>
+            );
+          }) : (
             <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
               暂无场景组合
             </div>

@@ -60,6 +60,15 @@ def _is_hidden_avatar(manifest_path: Path) -> bool:
     return bool((raw.get("metadata") or {}).get("hidden"))
 
 
+def _avatar_matting_status(manifest_path: Path) -> str:
+    try:
+        raw = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return "unknown"
+    value = str((raw.get("metadata") or {}).get("matting_status") or "").strip()
+    return value if value in {"unknown", "opaque", "transparent_ready"} else "unknown"
+
+
 def _avatar_preview_video_path(avatar_dir: Path) -> Path | None:
     manifest_path = avatar_dir / "manifest.json"
     try:
@@ -112,6 +121,7 @@ def _summary_from_dir(path: Path) -> AvatarSummary:
         height=m.height,
         is_custom=_is_custom_avatar(path / "manifest.json"),
         has_preview_video=_avatar_preview_video_path(path) is not None,
+        matting_status=_avatar_matting_status(path / "manifest.json"),
     )
 
 
@@ -209,6 +219,7 @@ def _write_custom_avatar_manifest(
     metadata["idle_mode"] = "static"
     metadata["reference_mode"] = "image"
     metadata["source_image"] = "source/source.png"
+    metadata["matting_status"] = "opaque"
     raw["metadata"] = metadata
     target_manifest_path.write_text(json.dumps(raw, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 

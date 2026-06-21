@@ -74,6 +74,38 @@ def test_create_custom_avatar_adds_listed_asset_with_preview(tmp_path):
     assert preview.headers["content-type"] == "image/png"
 
 
+def test_avatar_summary_includes_matting_status(tmp_path: Path) -> None:
+    root = tmp_path
+    avatar_dir = root / "anchor"
+    avatar_dir.mkdir()
+    (avatar_dir / "manifest.json").write_text(
+        json.dumps(
+            {
+                "id": "anchor",
+                "name": "Anchor",
+                "model_type": "flashtalk",
+                "fps": 25,
+                "sample_rate": 16000,
+                "width": 1,
+                "height": 1,
+                "version": "1.0",
+                "metadata": {"matting_status": "transparent_ready"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (avatar_dir / "preview.png").write_bytes(_png_bytes())
+    (avatar_dir / "reference.png").write_bytes(_png_bytes())
+
+    app = FastAPI()
+    app.state.settings = SimpleNamespace(avatars_dir=str(root))
+    app.include_router(avatars.router)
+    response = TestClient(app).get("/avatars")
+
+    assert response.status_code == 200
+    assert response.json()[0]["matting_status"] == "transparent_ready"
+
+
 def test_quicktalk_model_root_falls_back_to_omnirt_model_root(tmp_path, monkeypatch):
     monkeypatch.delenv("OPENTALKING_QUICKTALK_ASSET_ROOT", raising=False)
     monkeypatch.delenv("OPENTALKING_QUICKTALK_MODEL_ROOT", raising=False)

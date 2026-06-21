@@ -47,3 +47,14 @@ def test_scene_delete_actions_use_error_handled_handlers() -> None:
     assert "onNotify?.(detail ? `删除失败：${detail}` : \"删除失败，请稍后重试。\", \"error\")" in source
     assert "await loadScenes()" in source
     assert ".then(loadScenes)" not in source
+
+
+def test_scene_ui_surfaces_matting_readiness_copy() -> None:
+    asset_source = Path("apps/web/src/components/AssetLibraryWorkspace.tsx").read_text(encoding="utf-8")
+    avatar_source = Path("apps/web/src/components/AvatarSelectionStage.tsx").read_text(encoding="utf-8")
+    api_source = Path("apps/web/src/lib/api.ts").read_text(encoding="utf-8")
+
+    assert 'matting_status: "unknown" | "opaque" | "transparent_ready";' in api_source
+    assert "已抠像/透明数字人" in asset_source
+    assert "未抠像" in asset_source
+    assert "matting_status" in avatar_source
