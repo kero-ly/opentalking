@@ -2678,6 +2678,7 @@ export default function App() {
   const sessionConfigLocked = connection === "connecting" || connection === "queued" || connection === "live" || connection === "expiring";
   const effectiveAsrProvider = activeAsrProvider || normalizeAsrProvider(asrProvider, "dashscope");
   const showStart = connection === "idle" || connection === "error" || connection === "connecting" || connection === "queued";
+  const effectiveConversationViewMode = showStart ? "studio" : conversationViewMode;
   const chatMaxVisible = readChatMaxVisible();
   const selectedModelLabel = MODEL_LABELS_FOR_STAGE[model] ?? model;
   const wav2lipPostprocessModeLocked = sessionId !== null && connection !== "idle" && connection !== "error";
@@ -2713,7 +2714,7 @@ export default function App() {
       <TopBar
         connection={connection}
         workflow={workflow}
-        conversationViewMode={conversationViewMode}
+        conversationViewMode={effectiveConversationViewMode}
         flashtalkRecording={!!sessionId && (connection === "live" || connection === "expiring")}
         flashtalkRecordPhase={ftRecordPhase}
         flashtalkRecordBusy={ftRecordBusy}
@@ -2834,7 +2835,7 @@ export default function App() {
             onRuntimeConfigApply={handleApplyRuntimeConfig}
           />
         </div>
-      ) : workflow === "realtime" && conversationViewMode === "immersive" ? (
+      ) : workflow === "realtime" && effectiveConversationViewMode === "immersive" ? (
         <ImmersiveConversation
           videoRef={videoRef}
           scene={selectedScene}

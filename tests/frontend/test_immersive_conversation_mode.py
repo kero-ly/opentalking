@@ -48,3 +48,10 @@ def test_app_switches_between_studio_and_immersive_realtime_views() -> None:
     assert "conversationViewMode" in source
     assert "ImmersiveConversation" in source
     assert 'conversationViewMode === "immersive"' in source
+
+
+def test_app_gates_persisted_immersive_mode_while_start_is_visible() -> None:
+    source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
+
+    assert 'const effectiveConversationViewMode = showStart ? "studio" : conversationViewMode;' in source
+    assert 'effectiveConversationViewMode === "immersive"' in source
