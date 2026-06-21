@@ -1094,7 +1094,7 @@ export function AssetLibraryWorkspace({
       <section className="rounded-lg border border-slate-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-slate-950">场景组合</h2>
         <p className="mt-1 text-xs leading-relaxed text-slate-500">
-          场景组合保存数字人、背景、构图和字幕样式。未抠像的数字人仍可使用背景作为舞台环境，但不会和背景无缝融合。
+          场景组合保存数字人、背景、构图和字幕样式，可在实时对话和沉浸模式中复用。
         </p>
         <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_12rem_12rem_auto] md:items-end">
           <label className="block text-xs font-semibold text-slate-600">
@@ -1141,12 +1141,6 @@ export function AssetLibraryWorkspace({
         </div>
         <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {sceneCompositions.length ? sceneCompositions.map((scene) => {
-            const avatar = avatars?.find((item) => item.id === scene.avatar_id);
-            const mattingLabel = avatar?.matting_status === "transparent_ready"
-              ? "已抠像/透明数字人"
-              : avatar?.matting_status === "unknown"
-                ? "抠像状态未知"
-                : "未抠像";
             return (
               <article
                 key={scene.id}
@@ -1158,11 +1152,7 @@ export function AssetLibraryWorkspace({
               >
                 <p className="truncate text-sm font-semibold text-slate-950">{scene.name}</p>
                 <p className="mt-1 truncate text-xs text-slate-500">Avatar {scene.avatar_id}</p>
-                <p className="mt-1 truncate text-xs text-slate-500">{mattingLabel}</p>
                 <p className="mt-1 truncate text-xs text-slate-500">Background {scene.background_id ?? scene.background_color}</p>
-                <p className="mt-2 rounded-md bg-white px-2 py-1 text-xs text-slate-600">
-                  {scene.matting_required ? "建议使用已抠像/透明数字人" : "普通舞台模式"}
-                </p>
                 <div className="mt-3 flex items-center gap-3">
                   <button
                     type="button"

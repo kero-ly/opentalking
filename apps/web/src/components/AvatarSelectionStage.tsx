@@ -220,11 +220,6 @@ export function AvatarSelectionStage({
               {avatars.map((avatar) => {
                 const selected = avatar.id === selectedAvatar?.id;
                 const canDelete = avatar.is_custom && Boolean(onAvatarDelete);
-                const mattingLabel = avatar.matting_status === "transparent_ready"
-                  ? "已抠像/透明数字人"
-                  : avatar.matting_status === "opaque"
-                    ? "未抠像"
-                    : "抠像状态未知";
                 return (
                   <div
                     key={avatar.id}
@@ -278,9 +273,6 @@ export function AvatarSelectionStage({
                       <div className="px-3 py-2">
                         <span className="block truncate text-xs font-medium text-slate-500">
                           {avatar.is_custom ? "自定义形象" : "数字人形象"}
-                        </span>
-                        <span className="mt-1 block truncate text-xs font-medium text-slate-500">
-                          {mattingLabel}
                         </span>
                       </div>
                     </button>

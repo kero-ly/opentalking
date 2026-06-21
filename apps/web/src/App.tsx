@@ -191,7 +191,7 @@ const ASR_PROVIDER_STORAGE_KEY = "opentalking-asr-provider-v1";
 const CLIENT_USER_ID_KEY = "opentalking-client-user-id";
 const AGENT_CONFIG_STORAGE_KEY = "opentalking-agent-config-v1";
 const SELECTED_PERSONA_STORAGE_KEY = "opentalking-selected-persona-id-v1";
-const SELECTED_SCENE_STORAGE_KEY = "opentalking-selected-scene-id-v1";
+const SELECTED_SCENE_STORAGE_KEY = "opentalking-selected-scene-id-v2";
 const CONVERSATION_VIEW_MODE_KEY = "opentalking-conversation-view-mode-v1";
 const LEGACY_FASTLIVEPORTRAIT_DEFAULT_CONFIG: FasterLivePortraitConfig = {
   head_motion_multiplier: 1.0,
@@ -1214,7 +1214,7 @@ export default function App() {
       setSceneCompositions(scenes.items);
       setSelectedSceneId((current) => {
         if (current && scenes.items.some((scene) => scene.id === current)) return current;
-        return scenes.items[0]?.id ?? "";
+        return "";
       });
     } catch (error) {
       console.warn("load scene assets failed", error);
@@ -1225,7 +1225,7 @@ export default function App() {
     setSceneCompositions(scenes);
     setSelectedSceneId((current) => {
       if (current && scenes.some((scene) => scene.id === current)) return current;
-      return scenes[0]?.id ?? "";
+      return "";
     });
   }, []);
 
@@ -2942,11 +2942,11 @@ export default function App() {
             <div className="relative min-h-[360px] flex-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/70 lg:min-h-[420px]">
               <SceneStage
                 videoRef={videoRef}
-                scene={selectedScene}
+                scene={showStart ? null : selectedScene}
                 backgrounds={sceneBackgrounds}
                 subtitle={!showStart ? currentSubtitle : null}
                 compactSquareStage={compactSquareStage}
-                className="absolute inset-0"
+                className="h-full w-full"
               >
                 <div className="absolute left-4 right-4 top-4 z-30 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex min-w-0 flex-wrap gap-2">

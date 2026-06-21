@@ -83,12 +83,6 @@ export function SceneStage({
         </div>
       </div>
 
-      {scene?.matting_required ? (
-        <div className="pointer-events-none absolute left-4 top-4 z-20 rounded-lg border border-amber-200 bg-amber-50/90 px-2.5 py-1 text-[11px] font-medium text-amber-800 shadow-sm">
-          当前场景建议使用已抠像数字人
-        </div>
-      ) : null}
-
       {subtitle && subtitleStyle !== "none" ? (
         <div
           className={
