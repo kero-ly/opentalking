@@ -154,6 +154,17 @@ def test_app_offers_immersive_avatar_adjustment_controls() -> None:
     assert "重置" in source
 
 
+def test_immersive_avatar_adjustment_panel_uses_opaque_background() -> None:
+    source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
+
+    panel_start = source.index('className="w-64 rounded-l-xl')
+    panel_end = source.index('画面微调', panel_start)
+    panel_block = source[panel_start:panel_end]
+    assert "bg-slate-950 " in panel_block
+    assert "bg-slate-950/" not in panel_block
+    assert "backdrop-blur" not in panel_block
+
+
 def test_app_gates_persisted_immersive_mode_while_start_is_visible() -> None:
     source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
 

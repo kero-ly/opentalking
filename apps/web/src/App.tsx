@@ -3016,10 +3016,10 @@ export default function App() {
                       </button>
                     </div>
                     <div className="group absolute right-0 top-1/2 z-30 flex -translate-y-1/2 translate-x-[calc(100%-1.25rem)] items-center transition-transform duration-200 hover:translate-x-0 focus-within:translate-x-0">
-                      <div className="flex h-20 w-5 items-center justify-center rounded-l-lg border border-r-0 border-white/15 bg-slate-950/55 text-[10px] font-semibold text-white/80 shadow-lg backdrop-blur">
+                      <div className="flex h-20 w-5 items-center justify-center rounded-l-lg border border-r-0 border-slate-700 bg-slate-950 text-[10px] font-semibold text-white shadow-lg">
                         微调
                       </div>
-                      <div className="w-64 rounded-l-xl border border-white/15 bg-slate-950/72 p-4 text-white shadow-2xl backdrop-blur">
+                      <div className="w-64 rounded-l-xl border border-slate-700 bg-slate-950 p-4 text-white shadow-2xl shadow-slate-950/30">
                         <div className="mb-3 flex items-center justify-between gap-3">
                           <p className="text-sm font-semibold">画面微调</p>
                           <button
