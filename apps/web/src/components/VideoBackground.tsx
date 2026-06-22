@@ -1,12 +1,14 @@
+import type { CSSProperties } from "react";
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 
 type VideoBackgroundProps = {
   className?: string;
+  style?: CSSProperties;
   stream?: MediaStream | null;
 };
 
 export const VideoBackground = forwardRef<HTMLVideoElement, VideoBackgroundProps>(
-  ({ className, stream }, ref) => {
+  ({ className, style, stream }, ref) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     useImperativeHandle(ref, () => videoRef.current as HTMLVideoElement);
 
@@ -29,6 +31,7 @@ export const VideoBackground = forwardRef<HTMLVideoElement, VideoBackgroundProps
       <video
         ref={videoRef}
         className={className ?? "absolute inset-0 h-full w-full object-contain"}
+        style={style}
         autoPlay
         playsInline
         muted={!stream}

@@ -30,6 +30,16 @@ def test_scene_stage_applies_avatar_anchor_positioning() -> None:
     assert 'right: "items-center justify-end"' in source
 
 
+def test_scene_stage_masks_transparent_avatar_video_with_preview_alpha() -> None:
+    source = Path("apps/web/src/components/SceneStage.tsx").read_text(encoding="utf-8")
+
+    assert "avatarMaskUrl?: string | null;" in source
+    assert "WebkitMaskImage" in source
+    assert "maskImage" in source
+    assert "maskMode" in source
+    assert "avatarMaskStyle" in source
+
+
 def test_app_uses_scene_stage_for_realtime_stage() -> None:
     source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
 
@@ -37,6 +47,8 @@ def test_app_uses_scene_stage_for_realtime_stage() -> None:
     assert "selectedScene" in source
     assert "sceneBackgrounds" in source
     assert "<SceneStage" in source
+    assert "selectedAvatarMaskUrl" in source
+    assert "avatarMaskUrl={showStart ? null : selectedAvatarMaskUrl}" in source
 
 
 def test_immersive_conversation_component_focuses_stage_and_input() -> None:
@@ -46,8 +58,9 @@ def test_immersive_conversation_component_focuses_stage_and_input() -> None:
     assert "SceneStage" in source
     assert "ChatInput" in source
     assert "onExit" in source
-    assert "immersive-controls" in source
-    assert "演示模式" in source
+    assert 'event.key === "Escape"' in source
+    assert "bottom-3" in source
+    assert "返回工作台" in source
 
 
 def test_topbar_exposes_realtime_view_mode_toggle() -> None:
@@ -62,7 +75,7 @@ def test_app_switches_between_studio_and_immersive_realtime_views() -> None:
     source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
 
     assert "conversationViewMode" in source
-    assert "ImmersiveConversation" in source
+    assert "immersiveActive" in source
     assert 'conversationViewMode === "immersive"' in source
 
 

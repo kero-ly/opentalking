@@ -19,6 +19,14 @@ def _png_bytes(size: tuple[int, int] = (8, 8)) -> bytes:
     return out.getvalue()
 
 
+def _transparent_png_bytes(size: tuple[int, int] = (8, 8)) -> bytes:
+    image = Image.new("RGBA", size, (10, 180, 210, 255))
+    image.putpixel((0, 0), (10, 180, 210, 0))
+    out = BytesIO()
+    image.save(out, format="PNG")
+    return out.getvalue()
+
+
 def _path_has_suffix(path: str, *suffix: str) -> bool:
     return Path(path).parts[-len(suffix):] == suffix
 
@@ -104,6 +112,51 @@ def test_avatar_summary_includes_matting_status(tmp_path: Path) -> None:
 
     assert response.status_code == 200
     assert response.json()[0]["matting_status"] == "transparent_ready"
+
+
+def test_create_custom_avatar_preserves_uploaded_png_alpha(tmp_path, monkeypatch):
+    base = tmp_path / "base-avatar"
+    base.mkdir()
+    (base / "preview.png").write_bytes(_png_bytes())
+    (base / "reference.png").write_bytes(_png_bytes())
+    (base / "manifest.json").write_text(
+        json.dumps(
+            {
+                "id": "base-avatar",
+                "name": "Base Avatar",
+                "model_type": "mock",
+                "fps": 25,
+                "sample_rate": 16000,
+                "width": 8,
+                "height": 8,
+                "version": "1.0",
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(avatars.mouth_metadata, "detect_mouth_landmarks", lambda frame: None)
+
+    app = FastAPI()
+    app.state.settings = SimpleNamespace(avatars_dir=str(tmp_path))
+    app.include_router(avatars.router)
+    client = TestClient(app)
+
+    response = client.post(
+        "/avatars/custom",
+        data={"base_avatar_id": "base-avatar", "name": "透明形象"},
+        files={"image": ("avatar.png", _transparent_png_bytes(), "image/png")},
+    )
+
+    assert response.status_code == 200
+    created = response.json()
+    assert created["matting_status"] == "transparent_ready"
+    custom_dir = tmp_path / created["id"]
+    manifest = json.loads((custom_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["metadata"]["matting_status"] == "transparent_ready"
+    for rel in ("reference.png", "preview.png", "source/source.png"):
+        image = Image.open(custom_dir / rel)
+        assert image.mode == "RGBA"
+        assert image.getchannel("A").getextrema()[0] == 0
 
 
 def test_quicktalk_model_root_falls_back_to_omnirt_model_root(tmp_path, monkeypatch):

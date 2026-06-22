@@ -2722,6 +2722,9 @@ export default function App() {
   }, [closePeerConnection, releaseSession]);
 
   const currentAvatar = avatars.find((a) => a.id === avatarId) ?? null;
+  const selectedAvatarMaskUrl = selectedScene && currentAvatar?.matting_status === "transparent_ready"
+    ? buildApiUrl(`/avatars/${encodeURIComponent(currentAvatar.id)}/preview`)
+    : null;
   const sessionConfigLocked = connection === "connecting" || connection === "queued" || connection === "live" || connection === "expiring";
   const effectiveAsrProvider = activeAsrProvider || normalizeAsrProvider(asrProvider, "dashscope");
   const showStart = connection === "idle" || connection === "error" || connection === "connecting" || connection === "queued";
@@ -2987,6 +2990,7 @@ export default function App() {
                 scene={showStart ? null : selectedScene}
                 backgrounds={sceneBackgrounds}
                 subtitle={!showStart ? currentSubtitle : null}
+                avatarMaskUrl={showStart ? null : selectedAvatarMaskUrl}
                 compactSquareStage={compactSquareStage}
                 className="h-full w-full"
               >

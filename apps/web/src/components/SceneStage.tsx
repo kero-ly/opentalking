@@ -1,4 +1,4 @@
-import type { ReactNode, RefObject } from "react";
+import type { CSSProperties, ReactNode, RefObject } from "react";
 import type { SceneBackgroundAsset, SceneComposition } from "../lib/api";
 import { buildApiUrl } from "../lib/api";
 import { VideoBackground } from "./VideoBackground";
@@ -9,6 +9,7 @@ type SceneStageProps = {
   scene: SceneComposition | null;
   backgrounds: SceneBackgroundAsset[];
   subtitle?: string | null;
+  avatarMaskUrl?: string | null;
   children?: ReactNode;
   className?: string;
   compactSquareStage?: boolean;
@@ -45,6 +46,7 @@ export function SceneStage({
   scene,
   backgrounds,
   subtitle,
+  avatarMaskUrl = null,
   children,
   className = "",
   compactSquareStage = false,
@@ -58,8 +60,29 @@ export function SceneStage({
   const avatarAnchorClass = AVATAR_ANCHOR_CLASSES[avatarAnchor as keyof typeof AVATAR_ANCHOR_CLASSES] ?? AVATAR_ANCHOR_CLASSES.center;
   const avatarObjectPosition = AVATAR_ANCHOR_OBJECT_POSITIONS[avatarAnchor as keyof typeof AVATAR_ANCHOR_OBJECT_POSITIONS] ?? AVATAR_ANCHOR_OBJECT_POSITIONS.center;
   const avatarTransformOrigin = AVATAR_ANCHOR_TRANSFORM_ORIGINS[avatarAnchor as keyof typeof AVATAR_ANCHOR_TRANSFORM_ORIGINS] ?? AVATAR_ANCHOR_TRANSFORM_ORIGINS.center;
+  const avatarMaskSize = scene?.avatar_fit === "cover" ? "cover" : "contain";
+  const avatarMaskPosition = avatarAnchor === "bottom"
+    ? "center bottom"
+    : avatarAnchor === "left"
+      ? "left center"
+      : avatarAnchor === "right"
+        ? "right center"
+        : "center";
   const hasSceneBackground = Boolean(scene);
   const backgroundColor = scene?.background_color || "#ffffff";
+  const avatarMaskStyle: CSSProperties | undefined = avatarMaskUrl
+    ? {
+        WebkitMaskImage: `url("${avatarMaskUrl}")`,
+        WebkitMaskRepeat: "no-repeat",
+        WebkitMaskSize: avatarMaskSize,
+        WebkitMaskPosition: avatarMaskPosition,
+        maskImage: `url("${avatarMaskUrl}")`,
+        maskMode: "alpha",
+        maskRepeat: "no-repeat",
+        maskSize: avatarMaskSize,
+        maskPosition: avatarMaskPosition,
+      }
+    : undefined;
 
   return (
     <div className={`relative min-h-0 overflow-hidden ${hasSceneBackground ? "bg-slate-950" : "bg-white"} ${className}`}>
@@ -82,7 +105,7 @@ export function SceneStage({
           }
           style={{ transform: `scale(${scene?.avatar_scale ?? 1})`, transformOrigin: avatarTransformOrigin }}
         >
-          <VideoBackground ref={videoRef} stream={videoStream} className={`absolute inset-0 h-full w-full ${avatarFit} ${avatarObjectPosition}`} />
+          <VideoBackground ref={videoRef} stream={videoStream} className={`absolute inset-0 h-full w-full ${avatarFit} ${avatarObjectPosition}`} style={avatarMaskStyle} />
         </div>
       </div>
 
