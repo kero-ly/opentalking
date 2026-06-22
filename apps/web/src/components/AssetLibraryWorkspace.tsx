@@ -45,8 +45,9 @@ type AssetLibraryWorkspaceProps = {
   onRefreshMemoryLibraries?: () => void;
   avatars?: AvatarSummary[];
   onSceneCompositionsChange?: (scenes: SceneComposition[]) => void;
-  selectedSceneId?: string | null;
-  onSceneSelect?: (sceneId: string) => void;
+  selectedSceneIdsByAvatar?: Record<string, string>;
+  onSceneSelect?: (scene: SceneComposition) => void;
+  onSceneClear?: (avatarId: string) => void;
   onSceneBackgroundsChange?: (backgrounds: SceneBackgroundAsset[]) => void;
 };
 
@@ -240,8 +241,9 @@ export function AssetLibraryWorkspace({
   onRefreshMemoryLibraries,
   avatars,
   onSceneCompositionsChange,
-  selectedSceneId = null,
+  selectedSceneIdsByAvatar = {},
   onSceneSelect,
+  onSceneClear,
   onSceneBackgroundsChange,
 }: AssetLibraryWorkspaceProps) {
   const [activeTab, setActiveTab] = useState<AssetTab>(initialTab);
@@ -693,7 +695,7 @@ export function AssetLibraryWorkspace({
       const nextScenes = [created, ...sceneCompositions.filter((item) => item.id !== created.id)];
       setSceneCompositions(nextScenes);
       onSceneCompositionsChange?.(nextScenes);
-      onSceneSelect?.(created.id);
+      onSceneSelect?.(created);
       setSceneName("");
       onNotify?.("场景组合已创建。", "success");
     } catch (err) {
@@ -1037,6 +1039,25 @@ export function AssetLibraryWorkspace({
     />
   );
 
+  const avatarById = useMemo(() => new Map((avatars ?? []).map((avatar) => [avatar.id, avatar])), [avatars]);
+  const sceneGroups = useMemo(() => {
+    const avatarGroups = (avatars ?? [])
+      .map((avatar) => ({
+        avatar,
+        scenes: sceneCompositions.filter((scene) => scene.avatar_id === avatar.id),
+      }))
+      .filter((group) => group.scenes.length > 0);
+    const knownAvatarIds = new Set((avatars ?? []).map((avatar) => avatar.id));
+    const orphanScenes = sceneCompositions.filter((scene) => !knownAvatarIds.has(scene.avatar_id));
+    if (orphanScenes.length > 0) {
+      avatarGroups.push({
+        avatar: { id: "__unknown__", name: "未识别形象" } as AvatarSummary,
+        scenes: orphanScenes,
+      });
+    }
+    return avatarGroups;
+  }, [avatars, sceneCompositions]);
+
   const renderScenesTab = () => (
     <div className="grid min-h-[24rem] gap-4 xl:grid-cols-[22rem_minmax(0,1fr)]">
       <aside className="rounded-lg border border-slate-200 bg-white p-4">
@@ -1139,40 +1160,65 @@ export function AssetLibraryWorkspace({
             创建
           </button>
         </div>
-        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {sceneCompositions.length ? sceneCompositions.map((scene) => {
-            return (
-              <article
-                key={scene.id}
-                className={`rounded-lg border p-3 transition ${
-                  selectedSceneId === scene.id
-                    ? "border-cyan-300 bg-cyan-50"
-                    : "border-slate-200 bg-slate-50"
-                }`}
-              >
-                <p className="truncate text-sm font-semibold text-slate-950">{scene.name}</p>
-                <p className="mt-1 truncate text-xs text-slate-500">Avatar {scene.avatar_id}</p>
-                <p className="mt-1 truncate text-xs text-slate-500">Background {scene.background_id ?? scene.background_color}</p>
-                <div className="mt-3 flex items-center gap-3">
-                  <button
-                    type="button"
-                    aria-pressed={selectedSceneId === scene.id}
-                    onClick={() => onSceneSelect?.(scene.id)}
-                    className="text-xs font-semibold text-cyan-700 hover:text-cyan-600"
-                  >
-                    {selectedSceneId === scene.id ? "使用中" : "使用场景"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void handleDeleteSceneComposition(scene)}
-                    className="text-xs font-semibold text-rose-600 hover:text-rose-500"
-                  >
-                    删除
-                  </button>
+        <div className="mt-5 space-y-4">
+          {sceneGroups.length ? sceneGroups.map(({ avatar, scenes }) => (
+            <section key={avatar.id} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="text-sm font-semibold text-slate-950">{avatar.name ?? avatar.id}</p>
+                  <p className="text-xs text-slate-500">{scenes.length} 个场景组合</p>
                 </div>
-              </article>
-            );
-          }) : (
+                {selectedSceneIdsByAvatar[avatar.id] ? (
+                  <button
+                    type="button"
+                    onClick={() => onSceneClear?.(avatar.id)}
+                    className="text-xs font-semibold text-slate-500 hover:text-slate-800"
+                  >
+                    取消默认
+                  </button>
+                ) : null}
+              </div>
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {scenes.map((scene) => {
+                  const selected = selectedSceneIdsByAvatar[scene.avatar_id] === scene.id;
+                  const sceneAvatar = avatarById.get(scene.avatar_id);
+                  return (
+                    <article
+                      key={scene.id}
+                      className={`rounded-lg border p-3 transition ${
+                        selected
+                          ? "border-cyan-300 bg-cyan-50"
+                          : "border-slate-200 bg-white"
+                      }`}
+                    >
+                      <p className="truncate text-sm font-semibold text-slate-950">{scene.name}</p>
+                      <p className="mt-1 truncate text-xs text-slate-500">Avatar {sceneAvatar?.name ?? scene.avatar_id}</p>
+                      <p className="mt-1 truncate text-xs text-slate-500">Background {scene.background_id ?? scene.background_color}</p>
+                      <div className="mt-3 flex items-center gap-3">
+                        <button
+                          type="button"
+                          aria-pressed={selected}
+                          onClick={() => onSceneSelect?.(scene)}
+                          className={`text-xs font-semibold ${
+                            selected ? "text-cyan-800" : "text-cyan-700 hover:text-cyan-600"
+                          }`}
+                        >
+                          {selected ? "当前默认" : "设为默认"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleDeleteSceneComposition(scene)}
+                          className="text-xs font-semibold text-rose-600 hover:text-rose-500"
+                        >
+                          删除
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          )) : (
             <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
               暂无场景组合
             </div>

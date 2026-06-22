@@ -192,6 +192,7 @@ const CLIENT_USER_ID_KEY = "opentalking-client-user-id";
 const AGENT_CONFIG_STORAGE_KEY = "opentalking-agent-config-v1";
 const SELECTED_PERSONA_STORAGE_KEY = "opentalking-selected-persona-id-v1";
 const SELECTED_SCENE_STORAGE_KEY = "opentalking-selected-scene-id-v2";
+const SELECTED_SCENE_BY_AVATAR_STORAGE_KEY = "opentalking-selected-scene-by-avatar-v1";
 const CONVERSATION_VIEW_MODE_KEY = "opentalking-conversation-view-mode-v1";
 const LEGACY_FASTLIVEPORTRAIT_DEFAULT_CONFIG: FasterLivePortraitConfig = {
   head_motion_multiplier: 1.0,
@@ -351,6 +352,22 @@ function writeStoredAvatarId(avatarId: string, source: "auto" | "explicit" = "ex
     }
   } catch {
     /* ignore */
+  }
+}
+
+function readStoredSceneIdsByAvatar(): Record<string, string> {
+  try {
+    const raw = window.localStorage.getItem(SELECTED_SCENE_BY_AVATAR_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    return Object.fromEntries(
+      Object.entries(parsed).filter((entry): entry is [string, string] => (
+        typeof entry[0] === "string" && typeof entry[1] === "string" && entry[0].length > 0 && entry[1].length > 0
+      )),
+    );
+  } catch {
+    return {};
   }
 }
 
@@ -1001,13 +1018,7 @@ export default function App() {
   const [memoryLibraries, setMemoryLibraries] = useState<MemoryLibrary[]>([]);
   const [sceneBackgrounds, setSceneBackgrounds] = useState<SceneBackgroundAsset[]>([]);
   const [sceneCompositions, setSceneCompositions] = useState<SceneComposition[]>([]);
-  const [selectedSceneId, setSelectedSceneId] = useState(() => {
-    try {
-      return window.localStorage.getItem(SELECTED_SCENE_STORAGE_KEY) ?? "";
-    } catch {
-      return "";
-    }
-  });
+  const [selectedSceneIdsByAvatar, setSelectedSceneIdsByAvatar] = useState<Record<string, string>>(readStoredSceneIdsByAvatar);
   const avatarKnowledgeBasesSyncReadyRef = useRef(false);
   const lastPersistedAvatarKnowledgeBasesRef = useRef<Map<string, string[]>>(new Map());
   const avatarKnowledgeBasesLoadSeqRef = useRef(0);
@@ -1068,8 +1079,15 @@ export default function App() {
 
   const compactSquareStage = usesCompactSquareStage(model);
   const selectedScene = useMemo(
-    () => sceneCompositions.find((scene) => scene.id === selectedSceneId && scene.avatar_id === avatarId) ?? null,
-    [avatarId, sceneCompositions, selectedSceneId],
+    () => {
+      const selectedSceneId = selectedSceneIdsByAvatar[avatarId];
+      const matchingScenes = sceneCompositions.filter((scene) => scene.avatar_id === avatarId);
+      if (selectedSceneId) {
+        return matchingScenes.find((scene) => scene.id === selectedSceneId) ?? null;
+      }
+      return matchingScenes.length === 1 ? matchingScenes[0] : null;
+    },
+    [avatarId, sceneCompositions, selectedSceneIdsByAvatar],
   );
 
   const dismissToast = useCallback((id: string) => {
@@ -1215,9 +1233,23 @@ export default function App() {
       ]);
       setSceneBackgrounds(backgrounds.items);
       setSceneCompositions(scenes.items);
-      setSelectedSceneId((current) => {
-        if (current && scenes.items.some((scene) => scene.id === current)) return current;
-        return "";
+      setSelectedSceneIdsByAvatar((current) => {
+        const next = Object.fromEntries(
+          Object.entries(current).filter(([sceneAvatarId, sceneId]) => (
+            scenes.items.some((scene) => scene.id === sceneId && scene.avatar_id === sceneAvatarId)
+          )),
+        );
+        try {
+          const legacySceneId = window.localStorage.getItem(SELECTED_SCENE_STORAGE_KEY);
+          const legacyScene = legacySceneId ? scenes.items.find((scene) => scene.id === legacySceneId) : null;
+          if (legacyScene && !next[legacyScene.avatar_id]) {
+            next[legacyScene.avatar_id] = legacyScene.id;
+          }
+          window.localStorage.removeItem(SELECTED_SCENE_STORAGE_KEY);
+        } catch {
+          /* ignore */
+        }
+        return next;
       });
     } catch (error) {
       console.warn("load scene assets failed", error);
@@ -1226,9 +1258,27 @@ export default function App() {
 
   const handleSceneCompositionsChange = useCallback((scenes: SceneComposition[]) => {
     setSceneCompositions(scenes);
-    setSelectedSceneId((current) => {
-      if (current && scenes.some((scene) => scene.id === current)) return current;
-      return "";
+    setSelectedSceneIdsByAvatar((current) => {
+      return Object.fromEntries(
+        Object.entries(current).filter(([sceneAvatarId, sceneId]) => (
+          scenes.some((scene) => scene.id === sceneId && scene.avatar_id === sceneAvatarId)
+        )),
+      );
+    });
+  }, []);
+
+  const handleSceneSelect = useCallback((scene: SceneComposition) => {
+    setSelectedSceneIdsByAvatar((current) => ({
+      ...current,
+      [scene.avatar_id]: scene.id,
+    }));
+  }, []);
+
+  const handleSceneClear = useCallback((sceneAvatarId: string) => {
+    setSelectedSceneIdsByAvatar((current) => {
+      const next = { ...current };
+      delete next[sceneAvatarId];
+      return next;
     });
   }, []);
 
@@ -1320,12 +1370,15 @@ export default function App() {
 
   useEffect(() => {
     try {
-      if (selectedSceneId) window.localStorage.setItem(SELECTED_SCENE_STORAGE_KEY, selectedSceneId);
-      else window.localStorage.removeItem(SELECTED_SCENE_STORAGE_KEY);
+      if (Object.keys(selectedSceneIdsByAvatar).length) {
+        window.localStorage.setItem(SELECTED_SCENE_BY_AVATAR_STORAGE_KEY, JSON.stringify(selectedSceneIdsByAvatar));
+      } else {
+        window.localStorage.removeItem(SELECTED_SCENE_BY_AVATAR_STORAGE_KEY);
+      }
     } catch {
       /* ignore */
     }
-  }, [selectedSceneId]);
+  }, [selectedSceneIdsByAvatar]);
 
   useEffect(() => {
     try {
@@ -2844,8 +2897,9 @@ export default function App() {
             onMemoryLibrariesChange={setMemoryLibraries}
             onRefreshMemoryLibraries={() => void refreshMemoryLibraries()}
             avatars={avatars}
-            selectedSceneId={selectedSceneId}
-            onSceneSelect={setSelectedSceneId}
+            selectedSceneIdsByAvatar={selectedSceneIdsByAvatar}
+            onSceneSelect={handleSceneSelect}
+            onSceneClear={handleSceneClear}
             onSceneBackgroundsChange={setSceneBackgrounds}
             onSceneCompositionsChange={handleSceneCompositionsChange}
           />

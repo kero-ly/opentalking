@@ -43,33 +43,46 @@ def test_app_wires_scene_selection_and_background_updates_to_asset_library_works
         ') : workflow === "videoCreation" ? (',
         1,
     )[0]
-    assert "selectedSceneId={selectedSceneId}" in asset_library_mount
-    assert "onSceneSelect={setSelectedSceneId}" in asset_library_mount
+    assert "selectedSceneIdsByAvatar={selectedSceneIdsByAvatar}" in asset_library_mount
+    assert "onSceneSelect={handleSceneSelect}" in asset_library_mount
     assert "onSceneBackgroundsChange={setSceneBackgrounds}" in asset_library_mount
 
 
-def test_realtime_stage_only_applies_scene_for_matching_avatar() -> None:
+def test_realtime_stage_uses_avatar_default_scene_without_cross_avatar_leakage() -> None:
     source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
 
     selected_scene_block = source.split("const selectedScene = useMemo(", 1)[1].split(
         "const dismissToast",
         1,
     )[0]
-    assert "scene.id === selectedSceneId" in selected_scene_block
+    assert "selectedSceneIdsByAvatar[avatarId]" in selected_scene_block
     assert "scene.avatar_id === avatarId" in selected_scene_block
-    assert "[avatarId, sceneCompositions, selectedSceneId]" in selected_scene_block
+    assert "matchingScenes.length === 1 ? matchingScenes[0] : null" in selected_scene_block
+    assert "[avatarId, sceneCompositions, selectedSceneIdsByAvatar]" in selected_scene_block
 
 
 def test_asset_library_scene_cards_can_select_created_scene_and_sync_backgrounds() -> None:
     source = Path("apps/web/src/components/AssetLibraryWorkspace.tsx").read_text(encoding="utf-8")
 
-    assert "selectedSceneId?: string | null;" in source
-    assert "onSceneSelect?: (sceneId: string) => void;" in source
+    assert "selectedSceneIdsByAvatar?: Record<string, string>;" in source
+    assert "onSceneSelect?: (scene: SceneComposition) => void;" in source
+    assert "onSceneClear?: (avatarId: string) => void;" in source
     assert "onSceneBackgroundsChange?: (backgrounds: SceneBackgroundAsset[]) => void;" in source
-    assert "onSceneSelect?.(created.id)" in source
+    assert "onSceneSelect?.(created)" in source
     assert "onSceneBackgroundsChange?.(nextBackgrounds)" in source
-    assert "onClick={() => onSceneSelect?.(scene.id)}" in source
-    assert "aria-pressed={selectedSceneId === scene.id}" in source
+    assert "onSceneSelect?.(scene)" in source
+    assert "selectedSceneIdsByAvatar[scene.avatar_id] === scene.id" in source
+    assert "设为默认" in source
+    assert "当前默认" in source
+    assert "取消默认" in source
+
+
+def test_asset_library_groups_scene_compositions_by_avatar() -> None:
+    source = Path("apps/web/src/components/AssetLibraryWorkspace.tsx").read_text(encoding="utf-8")
+
+    assert "sceneGroups" in source
+    assert "avatarById" in source
+    assert "sceneCompositions.filter((scene) => scene.avatar_id === avatar.id)" in source
 
 
 def test_scene_delete_actions_use_error_handled_handlers() -> None:
