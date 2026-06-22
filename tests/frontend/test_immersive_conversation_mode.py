@@ -40,6 +40,16 @@ def test_scene_stage_masks_transparent_avatar_video_with_preview_alpha() -> None
     assert "avatarMaskStyle" in source
 
 
+def test_scene_stage_accepts_immersive_avatar_adjustments() -> None:
+    source = Path("apps/web/src/components/SceneStage.tsx").read_text(encoding="utf-8")
+
+    assert "avatarAdjust?: {" in source
+    assert "x: number;" in source
+    assert "y: number;" in source
+    assert "scale: number;" in source
+    assert "translate(${avatarAdjust.x}px, ${avatarAdjust.y}px) scale" in source
+
+
 def test_app_uses_scene_stage_for_realtime_stage() -> None:
     source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
 
@@ -62,9 +72,19 @@ def test_app_keeps_webrtc_remote_stream_identity_for_async_tracks() -> None:
 def test_video_background_falls_back_to_muted_playback_when_autoplay_blocks_audio() -> None:
     source = Path("apps/web/src/components/VideoBackground.tsx").read_text(encoding="utf-8")
 
-    assert "playWithMutedFallback" in source
+    assert "export function playWithMutedFallback" in source
     assert "video.muted = true" in source
     assert "video.play().catch" in source
+
+
+def test_app_replays_remote_video_with_muted_fallback_when_view_changes() -> None:
+    source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
+
+    assert 'import { playWithMutedFallback } from "./components/VideoBackground";' in source
+    effect_start = source.index("const video = videoRef.current;")
+    effect_end = source.index("}, [conversationViewMode, remoteStream, workflow]);", effect_start)
+    playback_effect = source[effect_start:effect_end]
+    assert "playWithMutedFallback(video)" in playback_effect
 
 
 def test_immersive_conversation_component_focuses_stage_and_input() -> None:
@@ -87,12 +107,51 @@ def test_topbar_exposes_realtime_view_mode_toggle() -> None:
     assert "沉浸" in source
 
 
+def test_topbar_hides_main_module_navigation_in_immersive_chrome() -> None:
+    source = Path("apps/web/src/components/TopBar.tsx").read_text(encoding="utf-8")
+
+    nav_label = source.index('aria-label="工作台模块"')
+    nav_start = source.rindex("<nav", 0, nav_label)
+    nav_end = source.index("</nav>", nav_label)
+    nav_block = source[nav_start:nav_end]
+    assert "immersiveChrome" in nav_block
+    assert '? "hidden"' in nav_block
+
+
+def test_topbar_immersive_chrome_does_not_stay_open_from_button_focus() -> None:
+    source = Path("apps/web/src/components/TopBar.tsx").read_text(encoding="utf-8")
+
+    header_start = source.index("<header")
+    header_end = source.index(">", header_start)
+    header_block = source[header_start:header_end]
+    assert "focus-within:translate-y-0" not in header_block
+
+
 def test_app_switches_between_studio_and_immersive_realtime_views() -> None:
     source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
 
     assert "conversationViewMode" in source
     assert "immersiveActive" in source
     assert 'conversationViewMode === "immersive"' in source
+
+
+def test_app_exits_immersive_realtime_view_with_escape() -> None:
+    source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
+
+    assert 'event.key !== "Escape"' in source
+    assert 'setConversationViewMode("studio")' in source
+
+
+def test_app_offers_immersive_avatar_adjustment_controls() -> None:
+    source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
+
+    assert "immersiveAvatarAdjust" in source
+    assert "avatarAdjust={immersiveActive ? immersiveAvatarAdjust : undefined}" in source
+    assert "画面微调" in source
+    assert "水平" in source
+    assert "垂直" in source
+    assert "缩放" in source
+    assert "重置" in source
 
 
 def test_app_gates_persisted_immersive_mode_while_start_is_visible() -> None:

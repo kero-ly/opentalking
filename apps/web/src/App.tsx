@@ -16,6 +16,7 @@ import { TopBar, type ConversationViewMode, type StudioWorkflow } from "./compon
 import { ToastStack, type ToastMessage, type ToastTone } from "./components/ToastStack";
 import { AssetLibraryWorkspace, type AssetLibraryTab } from "./components/AssetLibraryWorkspace";
 import { VideoCloneWorkspace } from "./components/VideoCloneWorkspace";
+import { playWithMutedFallback } from "./components/VideoBackground";
 import {
   DEFAULT_VIDEO_CREATION_FASTLIVEPORTRAIT_CONFIG,
   VideoCreationWorkspace,
@@ -987,6 +988,7 @@ export default function App() {
       return "studio";
     }
   });
+  const [immersiveAvatarAdjust, setImmersiveAvatarAdjust] = useState({ x: 0, y: 0, scale: 1 });
   const [voiceCatalog, setVoiceCatalog] = useState<VoiceCatalogItem[]>([]);
   const [voiceApplyNotice, setVoiceApplyNotice] = useState<string | null>(null);
   const [ttsPreviewText, setTtsPreviewText] = useState(DEFAULT_TTS_PREVIEW_TEXT);
@@ -1339,6 +1341,17 @@ export default function App() {
   }, [connection, conversationViewMode]);
 
   useEffect(() => {
+    if (workflow !== "realtime" || conversationViewMode !== "immersive") return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setConversationViewMode("studio");
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [conversationViewMode, workflow]);
+
+  useEffect(() => {
     if (selectedPersonaId) return;
     void refreshAvatarKnowledgeBases(avatarId);
   }, [avatarId, refreshAvatarKnowledgeBases, selectedPersonaId]);
@@ -1648,7 +1661,7 @@ export default function App() {
     if (remoteStream) {
       video.muted = false;
       video.volume = 1;
-      void video.play().catch(() => {});
+      playWithMutedFallback(video);
     } else {
       video.muted = true;
     }
@@ -2987,19 +3000,84 @@ export default function App() {
                 backgrounds={sceneBackgrounds}
                 subtitle={!showStart ? currentSubtitle : null}
                 avatarMaskUrl={showStart ? null : selectedAvatarMaskUrl}
+                avatarAdjust={immersiveActive ? immersiveAvatarAdjust : undefined}
                 compactSquareStage={compactSquareStage}
                 className="h-full w-full"
               >
                 {immersiveActive ? (
-                  <div className="absolute right-0 top-0 z-30 flex h-24 w-48 items-start justify-end p-4">
-                    <button
-                      type="button"
-                      onClick={() => setConversationViewMode("studio")}
-                      className="rounded-lg border border-white/15 bg-slate-950/45 px-3 py-2 text-xs font-semibold text-white opacity-0 shadow-lg backdrop-blur transition hover:bg-slate-950/65 hover:opacity-100 focus:opacity-100"
-                    >
-                      返回工作台
-                    </button>
-                  </div>
+                  <>
+                    <div className="absolute right-0 top-0 z-30 flex h-24 w-48 items-start justify-end p-4">
+                      <button
+                        type="button"
+                        onClick={() => setConversationViewMode("studio")}
+                        className="rounded-lg border border-white/15 bg-slate-950/45 px-3 py-2 text-xs font-semibold text-white opacity-0 shadow-lg backdrop-blur transition hover:bg-slate-950/65 hover:opacity-100 focus:opacity-100"
+                      >
+                        返回工作台
+                      </button>
+                    </div>
+                    <div className="group absolute right-0 top-1/2 z-30 flex -translate-y-1/2 translate-x-[calc(100%-1.25rem)] items-center transition-transform duration-200 hover:translate-x-0 focus-within:translate-x-0">
+                      <div className="flex h-20 w-5 items-center justify-center rounded-l-lg border border-r-0 border-white/15 bg-slate-950/55 text-[10px] font-semibold text-white/80 shadow-lg backdrop-blur">
+                        微调
+                      </div>
+                      <div className="w-64 rounded-l-xl border border-white/15 bg-slate-950/72 p-4 text-white shadow-2xl backdrop-blur">
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                          <p className="text-sm font-semibold">画面微调</p>
+                          <button
+                            type="button"
+                            onClick={() => setImmersiveAvatarAdjust({ x: 0, y: 0, scale: 1 })}
+                            className="rounded-md border border-white/15 px-2 py-1 text-xs font-semibold text-white/80 transition hover:bg-white/10 hover:text-white"
+                          >
+                            重置
+                          </button>
+                        </div>
+                        <label className="mb-3 block text-xs font-medium text-white/80">
+                          <span className="mb-1 flex justify-between">
+                            <span>水平</span>
+                            <span className="tabular-nums">{immersiveAvatarAdjust.x}px</span>
+                          </span>
+                          <input
+                            type="range"
+                            min="-240"
+                            max="240"
+                            step="4"
+                            value={immersiveAvatarAdjust.x}
+                            onChange={(event) => setImmersiveAvatarAdjust((prev) => ({ ...prev, x: Number(event.target.value) }))}
+                            className="w-full accent-cyan-300"
+                          />
+                        </label>
+                        <label className="mb-3 block text-xs font-medium text-white/80">
+                          <span className="mb-1 flex justify-between">
+                            <span>垂直</span>
+                            <span className="tabular-nums">{immersiveAvatarAdjust.y}px</span>
+                          </span>
+                          <input
+                            type="range"
+                            min="-180"
+                            max="180"
+                            step="4"
+                            value={immersiveAvatarAdjust.y}
+                            onChange={(event) => setImmersiveAvatarAdjust((prev) => ({ ...prev, y: Number(event.target.value) }))}
+                            className="w-full accent-cyan-300"
+                          />
+                        </label>
+                        <label className="block text-xs font-medium text-white/80">
+                          <span className="mb-1 flex justify-between">
+                            <span>缩放</span>
+                            <span className="tabular-nums">{immersiveAvatarAdjust.scale.toFixed(2)}x</span>
+                          </span>
+                          <input
+                            type="range"
+                            min="0.7"
+                            max="1.5"
+                            step="0.02"
+                            value={immersiveAvatarAdjust.scale}
+                            onChange={(event) => setImmersiveAvatarAdjust((prev) => ({ ...prev, scale: Number(event.target.value) }))}
+                            className="w-full accent-cyan-300"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </>
                 ) : (
                   <div className="absolute left-4 right-4 top-4 z-30 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex min-w-0 flex-wrap gap-2">

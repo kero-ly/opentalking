@@ -74,7 +74,7 @@ export function TopBar({
     <header
       className={
         immersiveChrome
-          ? "group fixed inset-x-0 top-0 z-50 flex h-14 -translate-y-12 items-center justify-between border-b border-white/10 bg-white/92 px-4 shadow-lg shadow-slate-950/10 backdrop-blur transition-transform duration-200 hover:translate-y-0 focus-within:translate-y-0"
+          ? "group fixed inset-x-0 top-0 z-50 flex h-14 -translate-y-12 items-center justify-between border-b border-white/10 bg-white/92 px-4 shadow-lg shadow-slate-950/10 backdrop-blur transition-transform duration-200 hover:translate-y-0"
           : "flex h-14 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 shadow-sm"
       }
     >
@@ -98,7 +98,14 @@ export function TopBar({
         </div>
       </div>
 
-      <nav className="hidden items-center gap-1 rounded-lg bg-slate-100 p-1 md:flex" aria-label="工作台模块">
+      <nav
+        className={
+          immersiveChrome
+            ? "hidden"
+            : "hidden items-center gap-1 rounded-lg bg-slate-100 p-1 md:flex"
+        }
+        aria-label="工作台模块"
+      >
         {[
           ["realtime", "实时对话"],
           ["videoCreation", "视频创作"],
@@ -141,7 +148,10 @@ export function TopBar({
               <button
                 key={id}
                 type="button"
-                onClick={() => onConversationViewModeChange?.(id as ConversationViewMode)}
+                onClick={(event) => {
+                  event.currentTarget.blur();
+                  onConversationViewModeChange?.(id as ConversationViewMode);
+                }}
                 className={`rounded-md px-2.5 py-1.5 text-xs font-semibold transition ${
                   conversationViewMode === id
                     ? "bg-white text-cyan-700 shadow-sm"

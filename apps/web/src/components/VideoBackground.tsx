@@ -7,7 +7,7 @@ type VideoBackgroundProps = {
   stream?: MediaStream | null;
 };
 
-function playWithMutedFallback(video: HTMLVideoElement) {
+export function playWithMutedFallback(video: HTMLVideoElement) {
   void video.play().catch(() => {
     video.muted = true;
     void video.play().catch(() => {});

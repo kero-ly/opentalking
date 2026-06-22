@@ -10,6 +10,11 @@ type SceneStageProps = {
   backgrounds: SceneBackgroundAsset[];
   subtitle?: string | null;
   avatarMaskUrl?: string | null;
+  avatarAdjust?: {
+    x: number;
+    y: number;
+    scale: number;
+  };
   children?: ReactNode;
   className?: string;
   compactSquareStage?: boolean;
@@ -47,6 +52,7 @@ export function SceneStage({
   backgrounds,
   subtitle,
   avatarMaskUrl = null,
+  avatarAdjust,
   children,
   className = "",
   compactSquareStage = false,
@@ -70,6 +76,11 @@ export function SceneStage({
         : "center";
   const hasSceneBackground = Boolean(scene);
   const backgroundColor = scene?.background_color || "#ffffff";
+  const sceneAvatarScale = scene?.avatar_scale ?? 1;
+  const avatarDisplayScale = sceneAvatarScale * (avatarAdjust?.scale ?? 1);
+  const avatarTransform = avatarAdjust
+    ? `translate(${avatarAdjust.x}px, ${avatarAdjust.y}px) scale(${avatarDisplayScale})`
+    : `scale(${sceneAvatarScale})`;
   const avatarMaskStyle: CSSProperties | undefined = avatarMaskUrl
     ? {
         WebkitMaskImage: `url("${avatarMaskUrl}")`,
@@ -103,7 +114,7 @@ export function SceneStage({
               ? "relative aspect-square w-full max-w-[42rem] max-h-full"
               : "relative h-full w-full"
           }
-          style={{ transform: `scale(${scene?.avatar_scale ?? 1})`, transformOrigin: avatarTransformOrigin }}
+          style={{ transform: avatarTransform, transformOrigin: avatarTransformOrigin }}
         >
           <VideoBackground ref={videoRef} stream={videoStream} className={`absolute inset-0 h-full w-full ${avatarFit} ${avatarObjectPosition}`} style={avatarMaskStyle} />
         </div>
