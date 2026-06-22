@@ -832,10 +832,6 @@ function realtimeRecordingStartErrorMessage(error: unknown): string {
     : "开始录制失败：请确认浏览器权限和当前会话状态。";
 }
 
-function cloneMediaStream(stream: MediaStream): MediaStream {
-  return new MediaStream(stream.getTracks());
-}
-
 export default function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -2162,12 +2158,12 @@ export default function App() {
       const playback = await startPlayback(created.session_id, videoRef.current!, {
         onRemoteStream: (remoteStream) => {
           remoteStreamRef.current = remoteStream;
-          setRemoteStream(cloneMediaStream(remoteStream));
+          setRemoteStream(remoteStream);
         },
       });
       pcRef.current = playback.pc;
       remoteStreamRef.current = playback.remoteStream;
-      setRemoteStream(cloneMediaStream(playback.remoteStream));
+      setRemoteStream(playback.remoteStream);
       setActiveAsrProvider(lockedAsrProvider);
       videoRef.current!.muted = false;
       setConnection("live");

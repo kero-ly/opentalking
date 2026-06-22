@@ -51,6 +51,14 @@ def test_app_uses_scene_stage_for_realtime_stage() -> None:
     assert "avatarMaskUrl={showStart ? null : selectedAvatarMaskUrl}" in source
 
 
+def test_app_keeps_webrtc_remote_stream_identity_for_async_tracks() -> None:
+    source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
+
+    assert "cloneMediaStream" not in source
+    assert "setRemoteStream(remoteStream)" in source
+    assert "setRemoteStream(playback.remoteStream)" in source
+
+
 def test_immersive_conversation_component_focuses_stage_and_input() -> None:
     source = Path("apps/web/src/components/ImmersiveConversation.tsx").read_text(encoding="utf-8")
 
