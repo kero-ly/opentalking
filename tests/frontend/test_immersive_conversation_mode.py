@@ -154,6 +154,24 @@ def test_app_offers_immersive_avatar_adjustment_controls() -> None:
     assert "重置" in source
 
 
+def test_immersive_avatar_adjustment_controls_have_wide_ranges() -> None:
+    source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
+
+    x_label = source.index("<span>水平</span>")
+    y_label = source.index("<span>垂直</span>")
+    scale_label = source.index("<span>缩放</span>")
+    x_block = source[x_label:source.index('value={immersiveAvatarAdjust.x}', x_label)]
+    y_block = source[y_label:source.index('value={immersiveAvatarAdjust.y}', y_label)]
+    scale_block = source[scale_label:source.index('value={immersiveAvatarAdjust.scale}', scale_label)]
+
+    assert 'min="-480"' in x_block
+    assert 'max="480"' in x_block
+    assert 'min="-320"' in y_block
+    assert 'max="320"' in y_block
+    assert 'min="0.4"' in scale_block
+    assert 'max="2.2"' in scale_block
+
+
 def test_immersive_avatar_adjustment_panel_uses_opaque_background() -> None:
     source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
 

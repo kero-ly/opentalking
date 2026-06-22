@@ -3037,8 +3037,8 @@ export default function App() {
                           </span>
                           <input
                             type="range"
-                            min="-240"
-                            max="240"
+                            min="-480"
+                            max="480"
                             step="4"
                             value={immersiveAvatarAdjust.x}
                             onChange={(event) => setImmersiveAvatarAdjust((prev) => ({ ...prev, x: Number(event.target.value) }))}
@@ -3052,8 +3052,8 @@ export default function App() {
                           </span>
                           <input
                             type="range"
-                            min="-180"
-                            max="180"
+                            min="-320"
+                            max="320"
                             step="4"
                             value={immersiveAvatarAdjust.y}
                             onChange={(event) => setImmersiveAvatarAdjust((prev) => ({ ...prev, y: Number(event.target.value) }))}
@@ -3067,8 +3067,8 @@ export default function App() {
                           </span>
                           <input
                             type="range"
-                            min="0.7"
-                            max="1.5"
+                            min="0.4"
+                            max="2.2"
                             step="0.02"
                             value={immersiveAvatarAdjust.scale}
                             onChange={(event) => setImmersiveAvatarAdjust((prev) => ({ ...prev, scale: Number(event.target.value) }))}
