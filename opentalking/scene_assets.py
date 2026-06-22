@@ -183,7 +183,12 @@ class SceneAssetStore:
         avatar_anchor = str(payload.get("avatar_anchor") or "center").strip()
         subtitle_style = str(payload.get("subtitle_style") or "lower-third").strip()
         raw_avatar_scale = payload.get("avatar_scale")
-        avatar_scale = 1.0 if raw_avatar_scale is None else float(raw_avatar_scale)
+        if raw_avatar_scale is None:
+            avatar_scale = 1.0
+        elif isinstance(raw_avatar_scale, str | int | float):
+            avatar_scale = float(raw_avatar_scale)
+        else:
+            raise ValueError("avatar_scale must be a number")
         if avatar_fit not in VALID_AVATAR_FITS:
             raise ValueError("invalid avatar_fit")
         if avatar_anchor not in VALID_AVATAR_ANCHORS:

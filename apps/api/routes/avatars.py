@@ -251,7 +251,9 @@ def _avatar_image_has_alpha(image: Image.Image) -> bool:
         return False
     alpha = image.getchannel("A")
     low, high = alpha.getextrema()
-    return int(low) < 255 or int(high) < 255
+    if not isinstance(low, int | float) or not isinstance(high, int | float):
+        return False
+    return low < 255 or high < 255
 
 
 def _update_manifest_matting_status(manifest_path: Path, image: Image.Image) -> None:
