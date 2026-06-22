@@ -59,6 +59,14 @@ def test_app_keeps_webrtc_remote_stream_identity_for_async_tracks() -> None:
     assert "setRemoteStream(playback.remoteStream)" in source
 
 
+def test_video_background_falls_back_to_muted_playback_when_autoplay_blocks_audio() -> None:
+    source = Path("apps/web/src/components/VideoBackground.tsx").read_text(encoding="utf-8")
+
+    assert "playWithMutedFallback" in source
+    assert "video.muted = true" in source
+    assert "video.play().catch" in source
+
+
 def test_immersive_conversation_component_focuses_stage_and_input() -> None:
     source = Path("apps/web/src/components/ImmersiveConversation.tsx").read_text(encoding="utf-8")
 

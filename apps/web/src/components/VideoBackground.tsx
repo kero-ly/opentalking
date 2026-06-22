@@ -7,6 +7,13 @@ type VideoBackgroundProps = {
   stream?: MediaStream | null;
 };
 
+function playWithMutedFallback(video: HTMLVideoElement) {
+  void video.play().catch(() => {
+    video.muted = true;
+    void video.play().catch(() => {});
+  });
+}
+
 export const VideoBackground = forwardRef<HTMLVideoElement, VideoBackgroundProps>(
   ({ className, style, stream }, ref) => {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -21,7 +28,7 @@ export const VideoBackground = forwardRef<HTMLVideoElement, VideoBackgroundProps
       if (stream) {
         video.muted = false;
         video.volume = 1;
-        void video.play().catch(() => {});
+        playWithMutedFallback(video);
       } else {
         video.muted = true;
       }
