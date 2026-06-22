@@ -48,6 +48,18 @@ def test_app_wires_scene_selection_and_background_updates_to_asset_library_works
     assert "onSceneBackgroundsChange={setSceneBackgrounds}" in asset_library_mount
 
 
+def test_realtime_stage_only_applies_scene_for_matching_avatar() -> None:
+    source = Path("apps/web/src/App.tsx").read_text(encoding="utf-8")
+
+    selected_scene_block = source.split("const selectedScene = useMemo(", 1)[1].split(
+        "const dismissToast",
+        1,
+    )[0]
+    assert "scene.id === selectedSceneId" in selected_scene_block
+    assert "scene.avatar_id === avatarId" in selected_scene_block
+    assert "[avatarId, sceneCompositions, selectedSceneId]" in selected_scene_block
+
+
 def test_asset_library_scene_cards_can_select_created_scene_and_sync_backgrounds() -> None:
     source = Path("apps/web/src/components/AssetLibraryWorkspace.tsx").read_text(encoding="utf-8")
 
@@ -73,14 +85,14 @@ def test_scene_delete_actions_use_error_handled_handlers() -> None:
     assert ".then(loadScenes)" not in source
 
 
-def test_scene_ui_surfaces_matting_readiness_copy() -> None:
+def test_scene_ui_omits_matting_readiness_copy() -> None:
     asset_source = Path("apps/web/src/components/AssetLibraryWorkspace.tsx").read_text(encoding="utf-8")
     avatar_source = Path("apps/web/src/components/AvatarSelectionStage.tsx").read_text(encoding="utf-8")
     api_source = Path("apps/web/src/lib/api.ts").read_text(encoding="utf-8")
 
     assert 'matting_status: "unknown" | "opaque" | "transparent_ready";' in api_source
-    assert "已抠像/透明数字人" in asset_source
-    assert "抠像状态未知" in asset_source
-    assert "未抠像" in asset_source
-    assert 'avatar?.matting_status === "unknown"' in asset_source
-    assert "matting_status" in avatar_source
+    assert "已抠像/透明数字人" not in asset_source
+    assert "抠像状态未知" not in asset_source
+    assert "未抠像" not in asset_source
+    assert 'avatar?.matting_status === "unknown"' not in asset_source
+    assert "matting_status" not in avatar_source

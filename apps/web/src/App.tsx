@@ -1070,8 +1070,8 @@ export default function App() {
 
   const compactSquareStage = usesCompactSquareStage(model);
   const selectedScene = useMemo(
-    () => sceneCompositions.find((scene) => scene.id === selectedSceneId) ?? null,
-    [sceneCompositions, selectedSceneId],
+    () => sceneCompositions.find((scene) => scene.id === selectedSceneId && scene.avatar_id === avatarId) ?? null,
+    [avatarId, sceneCompositions, selectedSceneId],
   );
 
   const dismissToast = useCallback((id: string) => {
