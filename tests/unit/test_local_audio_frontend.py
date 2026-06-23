@@ -187,6 +187,16 @@ def test_video_clone_allows_uploading_source_avatar():
     assert "onAvatarUploaded={handleVideoCloneAvatarUploaded}" in app
 
 
+def test_custom_avatar_upload_can_request_background_removal():
+    app = (WEB / "App.tsx").read_text(encoding="utf-8")
+    stage = (WEB / "components" / "AvatarSelectionStage.tsx").read_text(encoding="utf-8")
+
+    assert "上传时抠除背景" in stage
+    assert "customRemoveBackground" in stage
+    assert "removeBackground: customRemoveBackground" in stage
+    assert 'fd.set("remove_background", options?.removeBackground ? "true" : "false")' in app
+
+
 def test_video_clone_lip_retargeting_disables_relative_motion():
     clone = (WEB / "components" / "VideoCloneWorkspace.tsx").read_text(encoding="utf-8")
 

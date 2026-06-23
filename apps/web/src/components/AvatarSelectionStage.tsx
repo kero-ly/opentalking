@@ -24,7 +24,7 @@ type AvatarSelectionStageProps = {
   prewarmState?: "idle" | "preparing" | "ready" | "failed";
   onAvatarChange: (id: string) => void;
   onStart: () => void;
-  onCustomAvatarCreate: (file: File, name: string) => void;
+  onCustomAvatarCreate: (file: File, name: string, options?: { removeBackground?: boolean }) => void;
   onAvatarDelete?: (avatar: AvatarSummary) => void;
   referenceSaving?: boolean;
   memorySummary?: {
@@ -106,6 +106,7 @@ export function AvatarSelectionStage({
   });
   const [customFile, setCustomFile] = useState<File | null>(null);
   const [customPreviewUrl, setCustomPreviewUrl] = useState<string | null>(null);
+  const [customRemoveBackground, setCustomRemoveBackground] = useState(false);
   const selectedKnowledgeBaseIds = agentConfig.knowledgeBaseIds;
   const selectedPersona = personas.find((persona) => persona.id === selectedPersonaId) ?? null;
   const knowledgeBasesById = new Map(knowledgeBases.map((kb) => [kb.id, kb]));
@@ -153,7 +154,7 @@ export function AvatarSelectionStage({
     } catch {
       /* ignore */
     }
-    onCustomAvatarCreate(customFile, name);
+    onCustomAvatarCreate(customFile, name, { removeBackground: customRemoveBackground });
     setCustomUploadOpen(false);
   };
 
@@ -518,6 +519,15 @@ export function AvatarSelectionStage({
                   <span className="mt-0.5 block text-xs text-slate-500">会作为新资产加入形象库</span>
                 </span>
               </button>
+              <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+                <input
+                  type="checkbox"
+                  checked={customRemoveBackground}
+                  onChange={(event) => setCustomRemoveBackground(event.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                />
+                <span className="text-sm font-medium text-slate-700">上传时抠除背景</span>
+              </label>
             </div>
             <div className="flex items-center justify-end gap-2 border-t border-slate-100 bg-slate-50 px-4 py-3">
               <button

@@ -88,6 +88,9 @@ local-audio = [
   "librosa>=0.10",
   "scipy>=1.10",
 ]
+avatar-matting = [
+  "rembg[cpu]>=2.0.69,<2.0.70",
+]
 local-qwen3-tts-service = [
   "qwen-tts>=0.1.1",
   "transformers==4.57.3",

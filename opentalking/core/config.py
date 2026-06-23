@@ -24,6 +24,11 @@ def _flatten_config(raw: dict[str, Any] | None) -> dict[str, Any]:
             "models_dir": "models_dir",
             "worker_url": "worker_url",
         },
+        "avatar": {
+            "matting_provider": "avatar_matting_provider",
+            "matting_device": "avatar_matting_device",
+            "matting_timeout_sec": "avatar_matting_timeout_sec",
+        },
         "flashtalk": {
             "ws_url": "flashtalk_ws_url",
             "ckpt_dir": "flashtalk_ckpt_dir",
@@ -333,6 +338,9 @@ class Settings(BaseSettings):
     export_max_bytes: int = 1024 * 1024 * 1024
     video_creation_audio_max_bytes: int = 50 * 1024 * 1024
     video_creation_fasterliveportrait_preroll_ms: int = 400
+    avatar_matting_provider: str = "rembg"
+    avatar_matting_device: str = "cpu"
+    avatar_matting_timeout_sec: int = 60
 
     flashtalk_ws_url: str = ""
     flashtalk_ckpt_dir: str = "./models/SoulX-FlashTalk-14B"

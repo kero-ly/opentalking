@@ -2332,7 +2332,11 @@ export default function App() {
     }
   }, [avatarId, llmSystemPrompt, notify, releaseSession, resetLiveState]);
 
-  const handleCreateCustomAvatar = useCallback(async (file: File, name: string) => {
+  const handleCreateCustomAvatar = useCallback(async (
+    file: File,
+    name: string,
+    options?: { removeBackground?: boolean },
+  ) => {
     const trimmedName = name.trim();
     if (!trimmedName) {
       notify("请先给形象起个名字。", "info");
@@ -2350,6 +2354,7 @@ export default function App() {
       fd.set("name", trimmedName);
       fd.set("model", model);
       fd.set("image", file);
+      fd.set("remove_background", options?.removeBackground ? "true" : "false");
       const created = await apiPostForm<AvatarSummary>("/avatars/custom", fd);
       setAvatars((prev) => {
         const filtered = prev.filter((avatar) => avatar.id !== created.id);
@@ -3186,7 +3191,7 @@ export default function App() {
                     memorySummary={memorySummary}
                     onAvatarChange={handleAvatarChange}
                     onStart={() => void handleStart()}
-                    onCustomAvatarCreate={(file, name) => void handleCreateCustomAvatar(file, name)}
+                    onCustomAvatarCreate={(file, name, options) => void handleCreateCustomAvatar(file, name, options)}
                     onAvatarDelete={(target) => void handleDeleteAvatar(target)}
                     referenceSaving={referenceSaving}
                   />
