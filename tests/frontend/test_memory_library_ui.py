@@ -55,8 +55,24 @@ def test_memory_panel_supports_select_and_manage_modes() -> None:
     assert 'mode?: "select" | "manage"' in source
     assert 'const isManageMode = mode === "manage"' in source
     assert "管理记忆库" in source
-    assert "导入聊天记录" not in source
-    assert "导入到当前记忆库" not in source
+    assert "WeChatMemoryImportPanel" in source
     assert "importMemoryTurns" not in source
     assert "记忆条目" in source
     assert 'if (!isManageMode) return' in source
+
+
+def test_memory_panel_exposes_weflow_upload_without_api_fetch() -> None:
+    panel_source = (ROOT / "apps/web/src/components/MemoryPanel.tsx").read_text(encoding="utf-8")
+    import_source = (ROOT / "apps/web/src/components/WeChatMemoryImportPanel.tsx").read_text(encoding="utf-8")
+    api_source = (ROOT / "apps/web/src/lib/api.ts").read_text(encoding="utf-8")
+    types_source = (ROOT / "apps/web/src/types.ts").read_text(encoding="utf-8")
+
+    assert '<WeChatMemoryImportPanel' in panel_source
+    assert 'accept=".json,.csv,.txt,.html,.htm,.zip"' in import_source
+    assert "uploadWeChatImport" in import_source
+    assert "selectWeChatImportSpeaker" in import_source
+    assert "commitWeChatImportJob" in import_source
+    assert "source_url" not in import_source
+    assert "sourceUrl" not in api_source
+    assert "WeChatImportJob" in types_source
+    assert "WeChatImportCommitResult" in types_source

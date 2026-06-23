@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from opentalking.persona.persona_md import build_persona_prompt_text
 from opentalking.persona.store import PersonaRecord, PersonaStore
 
 
@@ -29,7 +30,12 @@ def default_persona_store() -> PersonaStore:
 
 def build_session_defaults(record: PersonaRecord) -> PersonaSessionDefaults:
     manifest = record.manifest
-    prompt = _read_prompt(record.path, manifest.agent.system_prompt)
+    prompt = build_persona_prompt_text(
+        record.path,
+        persona_prompt=manifest.agent.persona_prompt,
+        system_prompt=manifest.agent.system_prompt,
+        style_prompt=manifest.agent.style_prompt,
+    )
     return PersonaSessionDefaults(
         persona_id=manifest.id,
         avatar_id=manifest.avatar.id,

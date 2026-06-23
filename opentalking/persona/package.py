@@ -131,6 +131,7 @@ async def import_persona_package(
     with tempfile.TemporaryDirectory(prefix="opentalking-persona-import-") as tmp:
         package_root = Path(tmp)
         manifest = extract_persona_package(package_path, package_root)
+        _read_prompt_text(package_root, manifest.agent.persona_prompt)
         system_prompt = _read_prompt_text(package_root, manifest.agent.system_prompt)
         style_prompt = _read_prompt_text(package_root, manifest.agent.style_prompt)
         if system_prompt or style_prompt:
@@ -144,7 +145,11 @@ async def import_persona_package(
             )
             manifest = replace(
                 manifest,
-                agent=replace(manifest.agent, system_prompt="prompts/_compiled_system.md"),
+                agent=replace(
+                    manifest.agent,
+                    system_prompt="prompts/_compiled_system.md",
+                    style_prompt=None,
+                ),
             )
         manifest = await _import_knowledge_documents(
             manifest=manifest,

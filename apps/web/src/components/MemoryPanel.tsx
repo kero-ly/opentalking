@@ -7,12 +7,14 @@ import {
   getMemoryLibraries,
 } from "../lib/api";
 import type { MemoryItem, MemoryLibrary } from "../types";
+import { WeChatMemoryImportPanel } from "./WeChatMemoryImportPanel";
 
 type MemoryPanelProps = {
   characterId: string | null;
   selectedLibraryId: string | null;
   memoryEnabled?: boolean;
   profileId?: string;
+  avatarModel?: string;
   compact?: boolean;
   mode?: "select" | "manage";
   refreshToken?: number;
@@ -38,6 +40,7 @@ export function MemoryPanel({
   selectedLibraryId,
   memoryEnabled = false,
   profileId = "default",
+  avatarModel = "mock",
   compact = false,
   mode = "manage",
   refreshToken = 0,
@@ -287,6 +290,20 @@ export function MemoryPanel({
         </div>
 
         <div className="space-y-4 p-4">
+          <WeChatMemoryImportPanel
+            avatarId={characterId}
+            avatarModel={avatarModel}
+            profileId={profileId}
+            memoryLibraryId={selectedLibraryId || "default"}
+            disabled={busy || loadingLibraries}
+            onCommitted={async (result) => {
+              onLibrarySelect(result.memory_library_id);
+              onMemoryEnabledChange?.(true);
+              await refreshLibraries();
+              await refreshItems();
+            }}
+          />
+
           {notice ? (
             <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700">
               {notice}

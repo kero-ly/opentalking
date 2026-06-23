@@ -1,4 +1,4 @@
-import type { MemoryItem, MemoryLibrary, MemoryTurn } from "../types";
+import type { MemoryItem, MemoryLibrary, MemoryTurn, WeChatImportCommitResult, WeChatImportJob } from "../types";
 
 export const API_BASE = import.meta.env.VITE_API_BASE ?? "/api";
 
@@ -561,6 +561,49 @@ export function importMemoryTurns(
   },
 ): Promise<{ imported: number }> {
   return apiPost(`/memory/libraries/${encodeURIComponent(libraryId)}/import`, body);
+}
+
+export function uploadWeChatImport(
+  file: File,
+  body: {
+    profileId?: string;
+    memoryLibraryId?: string;
+    avatarId: string;
+    avatarModel?: string;
+    characterId?: string;
+    targetSpeakerId?: string;
+    sourceFormat?: string;
+    timezone?: string;
+  },
+): Promise<WeChatImportJob> {
+  const form = new FormData();
+  form.set("file", file);
+  form.set("profile_id", body.profileId || "default");
+  form.set("memory_library_id", body.memoryLibraryId || "default");
+  form.set("avatar_id", body.avatarId);
+  form.set("avatar_model", body.avatarModel || "mock");
+  if (body.characterId) form.set("character_id", body.characterId);
+  if (body.targetSpeakerId) form.set("target_speaker_id", body.targetSpeakerId);
+  if (body.sourceFormat) form.set("source_format", body.sourceFormat);
+  if (body.timezone) form.set("timezone", body.timezone);
+  return apiPostForm<WeChatImportJob>("/memory/wechat-import", form);
+}
+
+export function selectWeChatImportSpeaker(jobId: string, targetSpeakerId: string): Promise<WeChatImportJob> {
+  return apiPost(`/memory/wechat-import/${encodeURIComponent(jobId)}/speaker`, {
+    target_speaker_id: targetSpeakerId,
+  });
+}
+
+export function commitWeChatImportJob(
+  jobId: string,
+  body: { personaId: string; personaName?: string; description?: string },
+): Promise<WeChatImportCommitResult> {
+  return apiPost(`/memory/wechat-import/${encodeURIComponent(jobId)}/commit`, {
+    persona_id: body.personaId,
+    persona_name: body.personaName,
+    description: body.description,
+  });
 }
 
 /** GET /voices 返回的音色目录项（含 SQLite 中的系统预设与复刻） */

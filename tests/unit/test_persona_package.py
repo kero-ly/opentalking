@@ -13,6 +13,7 @@ from opentalking.persona.package import (
     validate_persona_package,
 )
 from opentalking.persona.schema import persona_from_dict
+from opentalking.persona.session import build_session_defaults
 from opentalking.persona.store import PersonaStore
 
 
@@ -113,3 +114,42 @@ def test_persona_package_imports_prompt_and_knowledge(tmp_path: Path) -> None:
     assert "企业客服数字人" in prompt
     bases = asyncio.run(knowledge_store.list_knowledge_bases())
     assert any(base.id == record.manifest.agent.knowledge_base_ids[0] for base in bases)
+
+
+
+def test_persona_prompt_is_loaded_before_legacy_prompts(tmp_path: Path) -> None:
+    source = tmp_path / "source"
+    (source / "prompts").mkdir(parents=True)
+    (source / "persona.md").write_text("# Persona\n你是小李，说话温柔。", encoding="utf-8")
+    (source / "prompts" / "system.md").write_text("旧系统提示。", encoding="utf-8")
+    (source / "prompts" / "style.md").write_text("旧风格提示。", encoding="utf-8")
+    (source / "persona.json").write_text(
+        """
+{
+  "schema_version": "0.1",
+  "id": "friend-li",
+  "name": "小李",
+  "description": "微信导入生成的 Persona",
+  "locale": "zh-CN",
+  "avatar": {"id": "custom-friend-li", "model": "mock"},
+  "agent": {
+    "persona_prompt": "persona.md",
+    "system_prompt": "prompts/system.md",
+    "style_prompt": "prompts/style.md",
+    "memory_enabled": true,
+    "knowledge_enabled": false
+  },
+  "safety": {"authorized_avatar": true, "authorized_voice": false, "content_label_required": true}
+}
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    package = tmp_path / "friend-li.otpersona"
+    create_persona_package_from_dir(source, package)
+
+    record = asyncio.run(import_persona_package(package, store=PersonaStore(tmp_path / "personas")))
+
+    assert record.manifest.agent.persona_prompt == "persona.md"
+    defaults = build_session_defaults(record)
+    assert defaults.llm_system_prompt == "# Persona\n你是小李，说话温柔。\n\n旧系统提示。\n\n旧风格提示。"

@@ -28,6 +28,7 @@ class PersonaVoice:
 
 @dataclass(frozen=True)
 class PersonaAgent:
+    persona_prompt: str | None = None
     system_prompt: str | None = None
     style_prompt: str | None = None
     memory_enabled: bool = False
@@ -153,6 +154,7 @@ def persona_from_dict(raw: dict[str, Any]) -> PersonaManifest:
             model=_optional_str(voice_raw.get("model"), max_len=256),
         ),
         agent=PersonaAgent(
+            persona_prompt=_optional_str(agent_raw.get("persona_prompt"), max_len=256),
             system_prompt=_optional_str(agent_raw.get("system_prompt"), max_len=256),
             style_prompt=_optional_str(agent_raw.get("style_prompt"), max_len=256),
             memory_enabled=_bool(agent_raw.get("memory_enabled"), default=False),

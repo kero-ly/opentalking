@@ -643,7 +643,7 @@ async def create_session(body: CreateSessionRequest, request: Request) -> Create
 
     custom = _session_customizations(request).get(avatar_id, {})
     persona_prompt = persona_defaults.llm_system_prompt if persona_defaults is not None else None
-    llm_system_prompt = (body.llm_system_prompt or "").strip() or persona_prompt or custom.get("llm_system_prompt")
+    llm_system_prompt = persona_prompt or (body.llm_system_prompt or "").strip() or custom.get("llm_system_prompt")
     custom_ref_image_path = custom.get("custom_ref_image_path")
     if custom_ref_image_path and not Path(custom_ref_image_path).exists():
         custom_ref_image_path = None

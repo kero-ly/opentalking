@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from opentalking.agent.context_builder import default_knowledge_store
 from opentalking.persona.package import export_persona_package, import_persona_package, validate_persona_package
+from opentalking.persona.persona_md import read_persona_md, write_persona_md
 from opentalking.persona.session import default_persona_store
 
 router = APIRouter(prefix="/personas", tags=["personas"])
@@ -28,6 +29,7 @@ class PersonaVoiceResponse(BaseModel):
 
 
 class PersonaAgentResponse(BaseModel):
+    persona_prompt: str | None = None
     system_prompt: str | None = None
     style_prompt: str | None = None
     memory_enabled: bool = False
@@ -67,6 +69,16 @@ class PersonasResponse(BaseModel):
     personas: list[PersonaResponse]
 
 
+
+
+class PersonaMdRequest(BaseModel):
+    content: str
+
+
+class PersonaMdResponse(BaseModel):
+    persona_id: str
+    content: str
+
 class DeletePersonaResponse(BaseModel):
     deleted: bool
 
@@ -86,6 +98,29 @@ async def list_personas() -> PersonasResponse:
 async def get_persona(persona_id: str) -> PersonaResponse:
     try:
         return _persona_response(default_persona_store().get_persona(persona_id))
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="persona not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/{persona_id}/persona-md", response_model=PersonaMdResponse)
+async def get_persona_md(persona_id: str) -> PersonaMdResponse:
+    try:
+        record = default_persona_store().get_persona(persona_id)
+        return PersonaMdResponse(persona_id=persona_id, content=read_persona_md(record))
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="persona not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.put("/{persona_id}/persona-md", response_model=PersonaMdResponse)
+async def update_persona_md(persona_id: str, body: PersonaMdRequest) -> PersonaMdResponse:
+    try:
+        record = default_persona_store().get_persona(persona_id)
+        content = write_persona_md(record, body.content)
+        return PersonaMdResponse(persona_id=persona_id, content=content)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="persona not found") from exc
     except ValueError as exc:

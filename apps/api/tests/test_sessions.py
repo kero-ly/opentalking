@@ -768,7 +768,7 @@ def test_create_session_expands_persona_defaults(
     assert calls[0]["knowledge_base_ids"] == ["kb_persona"]
 
 
-def test_create_session_allows_explicit_fields_to_override_persona(
+def test_create_session_keeps_persona_prompt_above_explicit_llm_prompt(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
@@ -804,7 +804,7 @@ def test_create_session_allows_explicit_fields_to_override_persona(
   "locale": "zh-CN",
   "avatar": {"id": "singer", "model": "mock"},
   "voice": {"provider": "edge", "voice_id": "zh-CN-XiaoxiaoNeural"},
-  "agent": {"memory_enabled": true, "knowledge_enabled": true, "knowledge_base_ids": ["kb_persona"]},
+  "agent": {"persona_prompt": "persona.md", "memory_enabled": true, "knowledge_enabled": true, "knowledge_base_ids": ["kb_persona"]},
   "runtime": {"stt_provider": "sensevoice", "tts_provider": "edge"},
   "safety": {"authorized_avatar": true, "authorized_voice": true, "content_label_required": true}
 }
@@ -812,6 +812,7 @@ def test_create_session_allows_explicit_fields_to_override_persona(
         + "\n",
         encoding="utf-8",
     )
+    (persona_dir / "persona.md").write_text("# Persona\nPersona prompt from package.\n", encoding="utf-8")
 
     monkeypatch.setattr(sessions_routes.session_service, "create_session", fake_create_session)
     monkeypatch.setattr(
@@ -851,7 +852,7 @@ def test_create_session_allows_explicit_fields_to_override_persona(
     assert response.status == "created"
     assert calls[0]["avatar_id"] == "anchor"
     assert calls[0]["model"] == "flashtalk"
-    assert calls[0]["llm_system_prompt"] == "显式提示词"
+    assert calls[0]["llm_system_prompt"] == "# Persona\nPersona prompt from package."
     assert calls[0]["knowledge_base_ids"] == ["kb_override"]
     assert calls[0]["memory_enabled"] is False
 
@@ -1342,3 +1343,78 @@ def test_close_cancels_running_and_queued_speech_tasks(unified_client: TestClien
 
     _wait_until(lambda: set(runner.cancelled_texts) == {"first", "second"})
     _wait_until(lambda: unified_client.get(f"/sessions/{session_id}").json()["state"] == "closed")
+
+
+
+def test_create_session_loads_persona_md_prompt(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    calls: list[dict[str, object]] = []
+
+    async def fake_create_session(*args: object, **kwargs: object) -> str:
+        calls.append(kwargs)
+        sid = "sess_persona_md"
+        redis = args[0]
+        await redis.hset(
+            session_key(sid),
+            mapping={
+                "session_id": sid,
+                "avatar_id": kwargs["avatar_id"],
+                "model": kwargs["model"],
+                "state": "worker_ready",
+            },
+        )
+        return sid
+
+    async def fake_connected_model_ids(_settings: object) -> set[str]:
+        return {"mock"}
+
+    persona_dir = tmp_path / "personas" / "friend-li"
+    persona_dir.mkdir(parents=True)
+    (persona_dir / "persona.md").write_text("# Persona\n你是小李，说话温柔。", encoding="utf-8")
+    (persona_dir / "persona.json").write_text(
+        """
+{
+  "schema_version": "0.1",
+  "id": "friend-li",
+  "name": "小李",
+  "description": "微信导入生成的 Persona",
+  "locale": "zh-CN",
+  "avatar": {"id": "singer", "model": "mock"},
+  "agent": {"persona_prompt": "persona.md", "memory_enabled": true, "knowledge_enabled": false},
+  "safety": {"authorized_avatar": true, "authorized_voice": false, "content_label_required": true}
+}
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(sessions_routes.session_service, "create_session", fake_create_session)
+    monkeypatch.setattr(
+        "opentalking.providers.synthesis.availability.connected_model_ids",
+        fake_connected_model_ids,
+    )
+
+    avatars_dir = Path(__file__).resolve().parents[3] / "examples" / "avatars"
+    app = FastAPI()
+    app.state.redis = InMemoryRedis()
+    app.state.settings = SimpleNamespace(
+        avatars_dir=str(avatars_dir),
+        persona_root=str(tmp_path / "personas"),
+        normalized_stt_default_provider="sensevoice",
+        normalized_stt_provider="sensevoice",
+        normalized_tts_default_provider="edge",
+        normalized_tts_provider="edge",
+        omnirt_endpoint="",
+    )
+    request = Request({"type": "http", "app": app})
+
+    response = asyncio.run(
+        sessions_routes.create_session(
+            CreateSessionRequest(persona_id="friend-li", user_id="client_test"),
+            request,
+        )
+    )
+
+    assert response.status == "created"
+    assert calls[0]["llm_system_prompt"] == "# Persona\n你是小李，说话温柔。"
