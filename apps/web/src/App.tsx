@@ -2370,7 +2370,8 @@ export default function App() {
       return created;
     } catch (e) {
       console.warn("create custom avatar failed", e);
-      notify("创建自定义形象失败，请查看后端日志。", "error");
+      const detail = e instanceof ApiError ? e.detail : null;
+      notify(detail ? `创建失败：${detail}` : "创建自定义形象失败，请查看后端日志。", "error");
       return null;
     } finally {
       setReferenceSaving(false);

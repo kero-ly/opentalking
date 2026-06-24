@@ -965,8 +965,8 @@ async def create_custom_avatar(
                     provider_name=str(getattr(request.app.state.settings, "avatar_matting_provider", "rembg")),
                     settings=request.app.state.settings,
                 )
-            except MattingError:
-                raise
+            except MattingError as exc:
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
             original_image.save(source_dir / "original.png", format="PNG")
             _update_manifest_matting_source(
                 target_dir / "manifest.json",
@@ -1006,6 +1006,9 @@ async def create_custom_avatar(
             metadata["frame_dir"] = "frames"
             raw["metadata"] = metadata
             _write_manifest(target_dir / "manifest.json", raw)
+    except HTTPException:
+        shutil.rmtree(target_dir, ignore_errors=True)
+        raise
     except Exception as exc:  # noqa: BLE001
         shutil.rmtree(target_dir, ignore_errors=True)
         raise HTTPException(status_code=500, detail=f"failed to create custom avatar: {exc}") from exc

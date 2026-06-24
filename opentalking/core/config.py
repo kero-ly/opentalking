@@ -27,6 +27,7 @@ def _flatten_config(raw: dict[str, Any] | None) -> dict[str, Any]:
         "avatar": {
             "matting_provider": "avatar_matting_provider",
             "matting_device": "avatar_matting_device",
+            "matting_model_path": "avatar_matting_model_path",
             "matting_timeout_sec": "avatar_matting_timeout_sec",
         },
         "flashtalk": {
@@ -340,6 +341,7 @@ class Settings(BaseSettings):
     video_creation_fasterliveportrait_preroll_ms: int = 400
     avatar_matting_provider: str = "rembg"
     avatar_matting_device: str = "cpu"
+    avatar_matting_model_path: str = ""
     avatar_matting_timeout_sec: int = 60
 
     flashtalk_ws_url: str = ""

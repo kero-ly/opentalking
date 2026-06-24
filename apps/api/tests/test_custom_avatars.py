@@ -295,6 +295,48 @@ def test_create_custom_avatar_removes_background_when_requested(tmp_path, monkey
     assert Image.open(custom_dir / "reference.png").getchannel("A").getextrema()[0] == 0
 
 
+def test_create_custom_avatar_reports_missing_matting_model(tmp_path, monkeypatch):
+    base = tmp_path / "base-avatar"
+    base.mkdir()
+    (base / "preview.png").write_bytes(_png_bytes())
+    (base / "reference.png").write_bytes(_png_bytes())
+    (base / "manifest.json").write_text(
+        json.dumps(
+            {
+                "id": "base-avatar",
+                "name": "Base Avatar",
+                "model_type": "mock",
+                "fps": 25,
+                "sample_rate": 16000,
+                "width": 8,
+                "height": 8,
+                "version": "1.0",
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(avatars.mouth_metadata, "detect_mouth_landmarks", lambda frame: None)
+
+    def fail_missing_model(*args, **kwargs):  # noqa: ANN002, ANN003
+        raise avatars.MattingError("未找到抠除背景模型 u2net.onnx。\n下载地址：https://example.test/u2net.onnx")
+
+    monkeypatch.setattr(avatars, "remove_avatar_background", fail_missing_model)
+
+    app = FastAPI()
+    app.state.settings = SimpleNamespace(avatars_dir=str(tmp_path))
+    app.include_router(avatars.router)
+
+    response = TestClient(app).post(
+        "/avatars/custom",
+        data={"base_avatar_id": "base-avatar", "name": "缺模型形象", "remove_background": "true"},
+        files={"image": ("avatar.png", _png_bytes(), "image/png")},
+    )
+
+    assert response.status_code == 400
+    assert "未找到抠除背景模型" in response.json()["detail"]
+    assert not any(path.name.startswith("custom-") for path in tmp_path.iterdir() if path.is_dir())
+
+
 def test_quicktalk_model_root_falls_back_to_omnirt_model_root(tmp_path, monkeypatch):
     monkeypatch.delenv("OPENTALKING_QUICKTALK_ASSET_ROOT", raising=False)
     monkeypatch.delenv("OPENTALKING_QUICKTALK_MODEL_ROOT", raising=False)

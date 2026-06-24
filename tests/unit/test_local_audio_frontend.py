@@ -202,6 +202,8 @@ def test_custom_avatar_upload_can_request_background_removal():
     assert "await onCustomAvatarCreate" in stage
     assert 'fd.set("remove_background", options?.removeBackground ? "true" : "false")' in app
     assert "return created" in app
+    assert "创建失败：" in app
+    assert "e instanceof ApiError ? e.detail : null" in app
 
 
 def test_video_clone_lip_retargeting_disables_relative_motion():
