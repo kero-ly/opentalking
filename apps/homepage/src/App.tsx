@@ -85,7 +85,7 @@ function App() {
 
     const targetCase = content.caseStudies.find((item) => item.slug === route.caseSlug);
 
-    if (targetCase && !targetCase.comingSoon) return;
+    if (targetCase) return;
 
     const fallbackRoute: RouteState = { language, page: "cases" };
     window.history.replaceState(null, "", getRoutePath(fallbackRoute));
@@ -129,7 +129,7 @@ function App() {
   const handleOpenCase = (slug: string) => {
     const targetCase = content.caseStudies.find((item) => item.slug === slug);
 
-    if (targetCase?.comingSoon) {
+    if (!targetCase) {
       return;
     }
 

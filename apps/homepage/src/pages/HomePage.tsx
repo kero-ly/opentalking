@@ -18,7 +18,7 @@ type HomePageProps = {
 
 export function HomePage({ content, onNavigate, onOpenCase }: HomePageProps) {
   const { home } = content;
-  const showcaseCases = content.caseStudies.filter((item) => !item.comingSoon);
+  const showcaseCases = content.caseStudies.filter((item) => item.featured);
 
   return (
     <>

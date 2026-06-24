@@ -71,7 +71,6 @@ export function CasesPage({ caseCategories, caseStudies, copy, onOpenCase }: Cas
               {visibleCases.map((item) => (
                 <CaseCard
                   key={item.slug}
-                  comingSoonLabel={copy.comingSoonLabel}
                   item={item}
                   onOpenCase={onOpenCase}
                 />

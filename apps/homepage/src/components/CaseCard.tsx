@@ -1,19 +1,18 @@
 import type { CaseStudy } from "../content";
 
 type CaseCardProps = {
-  comingSoonLabel?: string;
   item: CaseStudy;
   onOpenCase: (slug: string) => void;
 };
 
-export function CaseCard({ comingSoonLabel = "Coming soon", item, onOpenCase }: CaseCardProps) {
-  const isComingSoon = item.comingSoon;
+export function CaseCard({ item, onOpenCase }: CaseCardProps) {
   const imagePosition = item.imagePosition ?? "center";
+  const statusLabel = item.statusLabel;
 
   const handleOpen = () => {
     const selectedText = window.getSelection()?.toString().trim();
 
-    if (isComingSoon || selectedText) {
+    if (selectedText) {
       return;
     }
 
@@ -22,10 +21,9 @@ export function CaseCard({ comingSoonLabel = "Coming soon", item, onOpenCase }: 
 
   return (
     <article
-      className={`case-card case-card-${item.accent} ${isComingSoon ? "case-card-disabled" : ""}`}
-      role={isComingSoon ? undefined : "button"}
-      tabIndex={isComingSoon ? undefined : 0}
-      aria-disabled={isComingSoon}
+      className={`case-card case-card-${item.accent}`}
+      role="button"
+      tabIndex={0}
       onClick={handleOpen}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -33,7 +31,7 @@ export function CaseCard({ comingSoonLabel = "Coming soon", item, onOpenCase }: 
           handleOpen();
         }
       }}
-      aria-label={isComingSoon ? `${item.title} ${comingSoonLabel}` : item.title}
+      aria-label={item.title}
     >
       <div className="case-stage">
         <img
@@ -46,6 +44,11 @@ export function CaseCard({ comingSoonLabel = "Coming soon", item, onOpenCase }: 
         <div className="absolute left-4 top-4 rounded-lg border border-white/30 bg-white/75 px-3 py-1 text-xs font-semibold text-ink shadow-sm backdrop-blur-xl">
           {item.categoryLabel}
         </div>
+        {statusLabel ? (
+          <div className="absolute right-4 top-4 rounded-lg border border-white/30 bg-white/75 px-3 py-1 text-xs font-semibold text-indigo-700 shadow-sm backdrop-blur-xl">
+            {statusLabel}
+          </div>
+        ) : null}
       </div>
       <div className="case-card-copy p-5">
         <h3 className="text-lg font-semibold tracking-normal text-ink">{item.title}</h3>
@@ -60,11 +63,6 @@ export function CaseCard({ comingSoonLabel = "Coming soon", item, onOpenCase }: 
             </span>
           ))}
         </div>
-        {isComingSoon ? (
-          <span className="mt-5 inline-flex rounded-lg border border-indigo-100 bg-white px-3 py-1.5 text-xs font-semibold text-indigo-600">
-            {comingSoonLabel}
-          </span>
-        ) : null}
       </div>
     </article>
   );
