@@ -24,6 +24,8 @@ def test_rembg_provider_requires_configured_model_path(tmp_path, monkeypatch):
     assert "未找到抠除背景模型 u2net.onnx" in message
     assert "OPENTALKING_AVATAR_MATTING_MODEL_PATH" in message
     assert "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net.onnx" in message
+    assert "MD5" not in message
+    assert str(missing_model) not in message
 
 
 def test_rembg_provider_uses_configured_model_directory(tmp_path, monkeypatch):

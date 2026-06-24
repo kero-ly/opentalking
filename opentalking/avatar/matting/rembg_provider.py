@@ -19,21 +19,18 @@ def _configured_model_path(settings: object | None) -> Path | None:
     return Path(value).expanduser() if value else None
 
 
-def _missing_model_message(model_path: Path | None) -> str:
-    configured = str(model_path) if model_path is not None else "<请填写模型文件路径>"
+def _missing_model_message() -> str:
     return (
         "未找到抠除背景模型 u2net.onnx。\n"
         f"请下载模型：{REMBG_U2NET_MODEL_URL}\n"
-        f"MD5：{REMBG_U2NET_MODEL_MD5}\n"
-        "然后在 .env 中配置：\n"
-        f"OPENTALKING_AVATAR_MATTING_MODEL_PATH={configured}"
+        "然后在 .env 中配置 OPENTALKING_AVATAR_MATTING_MODEL_PATH。"
     )
 
 
 def _validate_model_path(settings: object | None) -> Path:
     model_path = _configured_model_path(settings)
     if model_path is None or not model_path.is_file():
-        raise MattingError(_missing_model_message(model_path))
+        raise MattingError(_missing_model_message())
     if model_path.name != "u2net.onnx":
         raise MattingError("OPENTALKING_AVATAR_MATTING_MODEL_PATH 必须指向 u2net.onnx 文件。")
     return model_path.resolve()

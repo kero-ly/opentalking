@@ -35,7 +35,7 @@ export function ToastStack({ toasts, onDismiss }: ToastStackProps) {
           role="status"
         >
           <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${DOT_CLASSES[toast.tone]}`} />
-          <p className="min-w-0 flex-1 leading-relaxed">{toast.message}</p>
+          <p className="min-w-0 flex-1 whitespace-pre-line break-words leading-relaxed">{toast.message}</p>
           <button
             type="button"
             onClick={() => onDismiss(toast.id)}
