@@ -193,8 +193,15 @@ def test_custom_avatar_upload_can_request_background_removal():
 
     assert "上传时抠除背景" in stage
     assert "customRemoveBackground" in stage
+    assert "customUploadState" in stage
+    assert "正在抠除背景..." in stage
+    assert "抠图完成" in stage
+    assert "createdCustomAvatar" in stage
+    assert "buildApiUrl(`/avatars/${encodeURIComponent(createdCustomAvatar.id)}/preview`)" in stage
     assert "removeBackground: customRemoveBackground" in stage
+    assert "await onCustomAvatarCreate" in stage
     assert 'fd.set("remove_background", options?.removeBackground ? "true" : "false")' in app
+    assert "return created" in app
 
 
 def test_video_clone_lip_retargeting_disables_relative_motion():

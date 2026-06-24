@@ -2367,9 +2367,11 @@ export default function App() {
       resetLiveState(true);
       setConnection("idle");
       notify(`自定义形象「${created.name ?? trimmedName}」已加入形象库。`, "success");
+      return created;
     } catch (e) {
       console.warn("create custom avatar failed", e);
       notify("创建自定义形象失败，请查看后端日志。", "error");
+      return null;
     } finally {
       setReferenceSaving(false);
     }
@@ -3191,7 +3193,7 @@ export default function App() {
                     memorySummary={memorySummary}
                     onAvatarChange={handleAvatarChange}
                     onStart={() => void handleStart()}
-                    onCustomAvatarCreate={(file, name, options) => void handleCreateCustomAvatar(file, name, options)}
+                    onCustomAvatarCreate={(file, name, options) => handleCreateCustomAvatar(file, name, options)}
                     onAvatarDelete={(target) => void handleDeleteAvatar(target)}
                     referenceSaving={referenceSaving}
                   />
