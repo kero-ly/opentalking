@@ -994,6 +994,7 @@ export default function App() {
     }
   });
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const toastTimersRef = useRef<Map<string, ReturnType<typeof window.setTimeout>>>(new Map());
   const [recordingSaving, setRecordingSaving] = useState(false);
   const [ftRecordPhase, setFtRecordPhase] = useState<"idle" | "recording" | "stopped">("idle");
   const [ftRecordBusy, setFtRecordBusy] = useState(false);
@@ -1091,16 +1092,40 @@ export default function App() {
   );
 
   const dismissToast = useCallback((id: string) => {
+    const timer = toastTimersRef.current.get(id);
+    if (timer) window.clearTimeout(timer);
+    toastTimersRef.current.delete(id);
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 
   const notify = useCallback((message: string, tone: ToastTone = "info") => {
     const id = makeToastId();
     setToasts((prev) => [...prev.slice(-2), { id, tone, message }]);
-    window.setTimeout(() => {
-      setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    }, tone === "error" ? 5200 : 3600);
+    if (tone !== "error") {
+      const timer = window.setTimeout(() => {
+        toastTimersRef.current.delete(id);
+        setToasts((prev) => prev.filter((toast) => toast.id !== id));
+      }, 3600);
+      toastTimersRef.current.set(id, timer);
+    }
   }, []);
+
+  const pauseToast = useCallback((id: string) => {
+    const timer = toastTimersRef.current.get(id);
+    if (!timer) return;
+    window.clearTimeout(timer);
+    toastTimersRef.current.delete(id);
+  }, []);
+
+  const resumeToast = useCallback((id: string) => {
+    const toast = toasts.find((item) => item.id === id);
+    if (!toast || toast.tone === "error" || toastTimersRef.current.has(id)) return;
+    const timer = window.setTimeout(() => {
+      toastTimersRef.current.delete(id);
+      setToasts((prev) => prev.filter((item) => item.id !== id));
+    }, 1800);
+    toastTimersRef.current.set(id, timer);
+  }, [toasts]);
 
   const syncRuntimeConfigSelection = useCallback((next: RuntimeConfigResponse) => {
     const nextAsrProvider = normalizeAsrProvider(next.stt.provider, "dashscope");
@@ -3328,7 +3353,7 @@ export default function App() {
         </aside>
       </div>
       )}
-      <ToastStack toasts={toasts} onDismiss={dismissToast} />
+      <ToastStack toasts={toasts} onDismiss={dismissToast} onPause={pauseToast} onResume={resumeToast} />
     </div>
   );
 }

@@ -206,6 +206,11 @@ def test_custom_avatar_upload_can_request_background_removal():
     assert "e instanceof ApiError ? e.detail : null" in app
     toast = (WEB / "components" / "ToastStack.tsx").read_text(encoding="utf-8")
     assert "whitespace-pre-line break-words" in toast
+    assert "tone !== \"error\"" in app
+    assert "pauseToast" in app
+    assert "resumeToast" in app
+    assert "onMouseEnter={() => onPause(toast.id)}" in toast
+    assert "onMouseLeave={() => onResume(toast.id)}" in toast
 
 
 def test_video_clone_lip_retargeting_disables_relative_motion():
