@@ -2942,6 +2942,9 @@ export default function App() {
           <VideoCreationWorkspace
             avatars={avatars}
             avatarId={avatarId}
+            sceneBackgrounds={sceneBackgrounds}
+            sceneCompositions={sceneCompositions}
+            selectedSceneIdsByAvatar={selectedSceneIdsByAvatar}
             models={models}
             onAvatarChange={handleAvatarChange}
             onAvatarUploaded={handleVideoCloneAvatarUploaded}

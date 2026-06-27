@@ -493,6 +493,28 @@ def test_video_creation_workspace_wires_offline_generation_flow():
     assert "去资产库查看" in workspace
 
 
+def test_video_creation_workspace_supports_one_off_scene_composition():
+    app = (WEB / "App.tsx").read_text(encoding="utf-8")
+    api = (WEB / "lib" / "api.ts").read_text(encoding="utf-8")
+    workspace = (WEB / "components" / "VideoCreationWorkspace.tsx").read_text(encoding="utf-8")
+
+    assert "sceneBackgrounds={sceneBackgrounds}" in app
+    assert "sceneCompositions={sceneCompositions}" in app
+    assert "selectedSceneIdsByAvatar={selectedSceneIdsByAvatar}" in app
+    assert "export type VideoCreationCompositionConfig" in api
+    assert "compositionConfig?: VideoCreationCompositionConfig | null" in api
+    assert 'form.set("composition_config", JSON.stringify(input.compositionConfig))' in api
+    assert "sceneBackgrounds: SceneBackgroundAsset[]" in workspace
+    assert "sceneCompositions: SceneComposition[]" in workspace
+    assert "selectedSceneIdsByAvatar?: Record<string, string>" in workspace
+    assert "生成前预览" in workspace
+    assert "本次生成" in workspace
+    assert "水平位置" in workspace
+    assert "垂直位置" in workspace
+    assert "人物缩放" in workspace
+    assert "compositionConfig" in workspace
+
+
 def test_frontend_export_controls_include_audio_renderer_models():
     app = (WEB / "App.tsx").read_text(encoding="utf-8")
     renderers_block = app[app.index("const SERVER_AUDIO_RENDERERS"):app.index("function isFlashRenderer")]
