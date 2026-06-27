@@ -513,6 +513,8 @@ def test_video_creation_workspace_supports_one_off_scene_composition():
     assert "垂直位置" in workspace
     assert "人物缩放" in workspace
     assert "compositionConfig" in workspace
+    assert "h-[clamp(18rem,45vh,36rem)]" in workspace
+    assert workspace.index("生成前预览") < workspace.index("构图设置")
 
 
 def test_frontend_export_controls_include_audio_renderer_models():
