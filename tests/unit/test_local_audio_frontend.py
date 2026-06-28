@@ -513,10 +513,18 @@ def test_video_creation_workspace_supports_one_off_scene_composition():
     assert "垂直位置" in workspace
     assert "人物缩放" in workspace
     assert "compositionConfig" in workspace
-    assert "output_width: VIDEO_CREATION_OUTPUT_SIZE.width" in workspace
-    assert "output_height: VIDEO_CREATION_OUTPUT_SIZE.height" in workspace
+    assert "VIDEO_CREATION_OUTPUT_SIZES" in workspace
+    assert '"16:9"' in workspace
+    assert '"9:16"' in workspace
+    assert '"1:1"' in workspace
+    assert "videoOutputAspect" in workspace
+    assert "selectedVideoOutputSize" in workspace
+    assert "output_width: selectedVideoOutputSize.width" in workspace
+    assert "output_height: selectedVideoOutputSize.height" in workspace
+    assert "aspectRatio: selectedVideoOutputSize.aspectRatio" in workspace
     assert "xl:grid-cols-[18rem_minmax(28rem,1fr)_minmax(32rem,42rem)]" in workspace
     assert "画面预览" in workspace
+    assert "输出画幅" in workspace
     assert "h-[clamp(18rem,42vh,30rem)]" not in workspace
     assert workspace.index("构图设置") < workspace.index("生成前预览")
 

@@ -22,6 +22,7 @@ import { buildTTSPreviewPayload, requestTTSPreview } from "../lib/ttsPreview";
 
 export type VideoCreationAudioSource = "upload" | "tts_text" | "voice_clone";
 type VideoCreationMode = "spoken_video" | "reference_video";
+type VideoCreationOutputAspect = "16:9" | "9:16" | "1:1";
 
 type VoiceOpt = { id: string; label: string; targetModel?: string | null };
 
@@ -74,7 +75,12 @@ const VIDEO_CREATION_MODEL_LABELS: Record<string, string> = {
   quicktalk: "QuickTalk",
   wav2lip: "Wav2Lip",
 };
-const VIDEO_CREATION_OUTPUT_SIZE = { width: 1280, height: 720 } as const;
+const VIDEO_CREATION_OUTPUT_SIZES = {
+  "16:9": { label: "16:9", width: 1280, height: 720, aspectRatio: "16 / 9", previewClassName: "w-full" },
+  "9:16": { label: "9:16", width: 720, height: 1280, aspectRatio: "9 / 16", previewClassName: "w-[min(100%,22rem)]" },
+  "1:1": { label: "1:1", width: 1080, height: 1080, aspectRatio: "1 / 1", previewClassName: "w-[min(100%,34rem)]" },
+} as const satisfies Record<VideoCreationOutputAspect, { label: string; width: number; height: number; aspectRatio: string; previewClassName: string }>;
+const VIDEO_CREATION_OUTPUT_ASPECTS = Object.keys(VIDEO_CREATION_OUTPUT_SIZES) as VideoCreationOutputAspect[];
 const VIDEO_CREATION_SCRIPT_MAX_CHARS = 1000;
 const FASTERLIVEPORTRAIT_ANIMATION_REGION_OPTIONS: { id: FasterLivePortraitConfig["animation_region"]; label: string }[] = [
   { id: "lip", label: "嘴部" },
@@ -321,6 +327,7 @@ export function VideoCreationWorkspace({
   const [activeIndexTTSPresetLabel, setActiveIndexTTSPresetLabel] = useState<string | null>(null);
   const [videoBackgroundId, setVideoBackgroundId] = useState<string | null>(null);
   const [videoAvatarAdjust, setVideoAvatarAdjust] = useState({ x: 0, y: 0, scale: 1 });
+  const [videoOutputAspect, setVideoOutputAspect] = useState<VideoCreationOutputAspect>("16:9");
   const sourceUploadRef = useRef<HTMLInputElement>(null);
   const ttsPreviewAudioRef = useRef<HTMLAudioElement | null>(null);
   const ttsPreviewUrlRef = useRef<string | null>(null);
@@ -352,6 +359,7 @@ export function VideoCreationWorkspace({
   const videoAvatarFit = selectedScene?.avatar_fit ?? "contain";
   const videoAvatarBaseScale = selectedScene?.avatar_scale ?? 1;
   const videoAvatarDisplayScale = videoAvatarBaseScale * videoAvatarAdjust.scale;
+  const selectedVideoOutputSize = VIDEO_CREATION_OUTPUT_SIZES[videoOutputAspect];
   const videoAvatarAnchorClass = VIDEO_AVATAR_ANCHOR_CLASSES[videoAvatarAnchor] ?? VIDEO_AVATAR_ANCHOR_CLASSES.center;
   const videoAvatarObjectPosition = VIDEO_AVATAR_OBJECT_POSITIONS[videoAvatarAnchor] ?? VIDEO_AVATAR_OBJECT_POSITIONS.center;
   const videoAvatarTransformOrigin = VIDEO_AVATAR_TRANSFORM_ORIGINS[videoAvatarAnchor] ?? VIDEO_AVATAR_TRANSFORM_ORIGINS.center;
@@ -366,10 +374,10 @@ export function VideoCreationWorkspace({
       avatar_scale: videoAvatarDisplayScale,
       avatar_offset_x: videoAvatarAdjust.x,
       avatar_offset_y: videoAvatarAdjust.y,
-      output_width: VIDEO_CREATION_OUTPUT_SIZE.width,
-      output_height: VIDEO_CREATION_OUTPUT_SIZE.height,
+      output_width: selectedVideoOutputSize.width,
+      output_height: selectedVideoOutputSize.height,
     };
-  }, [selectedScene?.background_color, selectedScene?.id, videoAvatarAdjust.scale, videoAvatarAdjust.x, videoAvatarAdjust.y, videoAvatarAnchor, videoAvatarDisplayScale, videoAvatarFit, videoBackgroundId]);
+  }, [selectedScene?.background_color, selectedScene?.id, selectedVideoOutputSize.height, selectedVideoOutputSize.width, videoAvatarAdjust.scale, videoAvatarAdjust.x, videoAvatarAdjust.y, videoAvatarAnchor, videoAvatarDisplayScale, videoAvatarFit, videoBackgroundId]);
 
   const updateFasterLivePortraitNumber = useCallback((
     key: Exclude<keyof FasterLivePortraitConfig, "animation_region" | "flag_stitching" | "flag_pasteback" | "flag_relative_motion" | "flag_normalize_lip" | "flag_lip_retargeting">,
@@ -1057,10 +1065,13 @@ export function VideoCreationWorkspace({
                 <h3 className="text-sm font-semibold text-white">生成前预览</h3>
               </div>
               <span className="rounded-md border border-white/15 bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-white/75">
-                1280x720
+                {selectedVideoOutputSize.width}x{selectedVideoOutputSize.height}
               </span>
             </div>
-            <div className="relative aspect-video w-full overflow-hidden rounded-md border border-white/10 bg-white" style={{ backgroundColor: selectedScene?.background_color ?? "#f8fafc" }}>
+            <div
+              className={`relative mx-auto overflow-hidden rounded-md border border-white/10 bg-white ${selectedVideoOutputSize.previewClassName}`}
+              style={{ aspectRatio: selectedVideoOutputSize.aspectRatio, backgroundColor: selectedScene?.background_color ?? "#f8fafc" }}
+            >
               {selectedVideoBackground?.kind === "image" ? (
                 <img src={sceneBackgroundUrl(selectedVideoBackground)} alt={selectedVideoBackground.name} className="absolute inset-0 h-full w-full object-cover" />
               ) : null}
@@ -1095,6 +1106,29 @@ export function VideoCreationWorkspace({
             </div>
           </div>
           <div className="mt-3 space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <div>
+              <p className="mb-1.5 text-xs font-semibold text-slate-700">输出画幅</p>
+              <div className="grid grid-cols-3 gap-2">
+                {VIDEO_CREATION_OUTPUT_ASPECTS.map((aspect) => {
+                  const option = VIDEO_CREATION_OUTPUT_SIZES[aspect];
+                  const active = aspect === videoOutputAspect;
+                  return (
+                    <button
+                      key={aspect}
+                      type="button"
+                      onClick={() => setVideoOutputAspect(aspect)}
+                      className={`rounded-md border px-2 py-1.5 text-xs font-semibold transition-colors ${
+                        active
+                          ? "border-cyan-500 bg-cyan-50 text-cyan-700"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-cyan-200 hover:text-cyan-700"
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             <label className="block text-xs font-semibold text-slate-700">
               本次生成背景
               <select
