@@ -523,8 +523,9 @@ def test_video_creation_workspace_supports_one_off_scene_composition():
     assert "output_height: selectedVideoOutputSize.height" in workspace
     assert 'data-testid="video-creation-result-panel"' in workspace
     assert 'data-testid="video-creation-composition-controls"' in workspace
-    assert "flex min-h-0 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm" in workspace
-    assert "mt-3 min-h-0 flex-1 space-y-3 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3" in workspace
+    assert "flex min-h-0 flex-col overflow-y-auto rounded-lg border border-slate-200 bg-white p-4 shadow-sm" in workspace
+    assert "mt-3 space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-3" in workspace
+    assert "mt-3 min-h-0 flex-1 space-y-3 overflow-y-auto" not in workspace
     assert "mt-4 shrink-0 overflow-hidden" in workspace
     assert "aspect-video w-full" in workspace
     assert "aspect-[9/16]" in workspace

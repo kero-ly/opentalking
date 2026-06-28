@@ -1074,7 +1074,7 @@ export function VideoCreationWorkspace({
           </div>
         </section>
 
-        <aside className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <aside className="flex min-h-0 flex-col overflow-y-auto rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs font-medium text-slate-500">Composition</p>
           <h2 className="mt-1 text-base font-semibold text-slate-950">构图设置</h2>
           <div className="mt-4 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-950 p-3">
@@ -1124,7 +1124,7 @@ export function VideoCreationWorkspace({
               </div>
             </div>
           </div>
-          <div data-testid="video-creation-composition-controls" className="mt-3 min-h-0 flex-1 space-y-3 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <div data-testid="video-creation-composition-controls" className="mt-3 space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
             <div>
               <p className="mb-1.5 text-xs font-semibold text-slate-700">输出画幅</p>
               <div className="grid grid-cols-3 gap-2">
