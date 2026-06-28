@@ -76,10 +76,10 @@ const VIDEO_CREATION_MODEL_LABELS: Record<string, string> = {
   wav2lip: "Wav2Lip",
 };
 const VIDEO_CREATION_OUTPUT_SIZES = {
-  "16:9": { label: "16:9", width: 1280, height: 720, aspectRatio: "16 / 9", previewClassName: "w-full" },
-  "9:16": { label: "9:16", width: 720, height: 1280, aspectRatio: "9 / 16", previewClassName: "w-[min(100%,22rem)]" },
-  "1:1": { label: "1:1", width: 1080, height: 1080, aspectRatio: "1 / 1", previewClassName: "w-[min(100%,34rem)]" },
-} as const satisfies Record<VideoCreationOutputAspect, { label: string; width: number; height: number; aspectRatio: string; previewClassName: string }>;
+  "16:9": { label: "16:9", width: 1280, height: 720, previewClassName: "aspect-video w-full" },
+  "9:16": { label: "9:16", width: 720, height: 1280, previewClassName: "aspect-[9/16] w-[min(100%,22rem)]" },
+  "1:1": { label: "1:1", width: 1080, height: 1080, previewClassName: "aspect-square w-[min(100%,34rem)]" },
+} as const satisfies Record<VideoCreationOutputAspect, { label: string; width: number; height: number; previewClassName: string }>;
 const VIDEO_CREATION_OUTPUT_ASPECTS = Object.keys(VIDEO_CREATION_OUTPUT_SIZES) as VideoCreationOutputAspect[];
 const VIDEO_CREATION_SCRIPT_MAX_CHARS = 1000;
 const FASTERLIVEPORTRAIT_ANIMATION_REGION_OPTIONS: { id: FasterLivePortraitConfig["animation_region"]; label: string }[] = [
@@ -1070,7 +1070,7 @@ export function VideoCreationWorkspace({
             </div>
             <div
               className={`relative mx-auto overflow-hidden rounded-md border border-white/10 bg-white ${selectedVideoOutputSize.previewClassName}`}
-              style={{ aspectRatio: selectedVideoOutputSize.aspectRatio, backgroundColor: selectedScene?.background_color ?? "#f8fafc" }}
+              style={{ backgroundColor: selectedScene?.background_color ?? "#f8fafc" }}
             >
               {selectedVideoBackground?.kind === "image" ? (
                 <img src={sceneBackgroundUrl(selectedVideoBackground)} alt={selectedVideoBackground.name} className="absolute inset-0 h-full w-full object-cover" />
@@ -1199,7 +1199,7 @@ export function VideoCreationWorkspace({
           <h2 className="mt-1 text-base font-semibold text-slate-950">生成结果</h2>
           {result ? (
             <div className="mt-4 space-y-3">
-              <video src={buildApiDownloadUrl(result.download_url)} className="aspect-video w-full rounded-lg bg-slate-950 object-contain" controls preload="metadata" />
+              <video src={buildApiDownloadUrl(result.download_url)} className={`mx-auto rounded-lg bg-slate-950 object-contain ${selectedVideoOutputSize.previewClassName}`} controls preload="metadata" />
               <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
                 <p className="font-semibold text-slate-800">{result.title}</p>
                 <p className="mt-1 break-all font-mono text-[11px]">{result.path}</p>

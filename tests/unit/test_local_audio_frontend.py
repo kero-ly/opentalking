@@ -521,7 +521,10 @@ def test_video_creation_workspace_supports_one_off_scene_composition():
     assert "selectedVideoOutputSize" in workspace
     assert "output_width: selectedVideoOutputSize.width" in workspace
     assert "output_height: selectedVideoOutputSize.height" in workspace
-    assert "aspectRatio: selectedVideoOutputSize.aspectRatio" in workspace
+    assert "aspect-video w-full" in workspace
+    assert "aspect-[9/16]" in workspace
+    assert "aspect-square" in workspace
+    assert "aspectRatio: selectedVideoOutputSize.aspectRatio" not in workspace
     assert "xl:grid-cols-[18rem_minmax(28rem,1fr)_minmax(32rem,42rem)]" in workspace
     assert "画面预览" in workspace
     assert "输出画幅" in workspace
