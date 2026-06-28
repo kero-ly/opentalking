@@ -1052,10 +1052,29 @@ export function VideoCreationWorkspace({
               </button>
               {result ? <span className="text-sm font-medium text-emerald-700">已保存到资产库</span> : null}
             </div>
+            {result ? (
+              <div data-testid="video-creation-result-panel" className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-medium text-slate-500">Result</p>
+                    <h2 className="mt-1 text-base font-semibold text-slate-950">生成结果</h2>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <a href={buildApiDownloadUrl(result.download_url)} download className="rounded-lg bg-cyan-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-cyan-500">下载</a>
+                    <button type="button" onClick={onGoAssetLibrary} className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-cyan-200 hover:text-cyan-700">去资产库查看</button>
+                  </div>
+                </div>
+                <video src={buildApiDownloadUrl(result.download_url)} className={`mt-3 mx-auto rounded-lg bg-slate-950 object-contain ${selectedVideoOutputSize.previewClassName}`} controls preload="metadata" />
+                <div className="mt-3 rounded-lg bg-white p-3 text-xs text-slate-600">
+                  <p className="font-semibold text-slate-800">{result.title}</p>
+                  <p className="mt-1 break-all font-mono text-[11px]">{result.path}</p>
+                </div>
+              </div>
+            ) : null}
           </div>
         </section>
 
-        <aside className="flex min-h-0 flex-col overflow-y-auto rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <aside className="flex min-h-0 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs font-medium text-slate-500">Composition</p>
           <h2 className="mt-1 text-base font-semibold text-slate-950">构图设置</h2>
           <div className="mt-4 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-950 p-3">
@@ -1105,7 +1124,7 @@ export function VideoCreationWorkspace({
               </div>
             </div>
           </div>
-          <div className="mt-3 space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <div data-testid="video-creation-composition-controls" className="mt-3 min-h-0 flex-1 space-y-3 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
             <div>
               <p className="mb-1.5 text-xs font-semibold text-slate-700">输出画幅</p>
               <div className="grid grid-cols-3 gap-2">
@@ -1195,23 +1214,6 @@ export function VideoCreationWorkspace({
               重置本次生成构图
             </button>
           </div>
-          <p className="mt-5 text-xs font-medium text-slate-500">Result</p>
-          <h2 className="mt-1 text-base font-semibold text-slate-950">生成结果</h2>
-          {result ? (
-            <div className="mt-4 space-y-3">
-              <video src={buildApiDownloadUrl(result.download_url)} className={`mx-auto rounded-lg bg-slate-950 object-contain ${selectedVideoOutputSize.previewClassName}`} controls preload="metadata" />
-              <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
-                <p className="font-semibold text-slate-800">{result.title}</p>
-                <p className="mt-1 break-all font-mono text-[11px]">{result.path}</p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <a href={buildApiDownloadUrl(result.download_url)} download className="rounded-lg bg-cyan-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-cyan-500">下载</a>
-                <button type="button" onClick={onGoAssetLibrary} className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-cyan-200 hover:text-cyan-700">去资产库查看</button>
-              </div>
-            </div>
-          ) : (
-            <div className="mt-4 flex min-h-[18rem] items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 text-sm font-medium text-slate-500">生成后显示视频预览</div>
-          )}
         </aside>
       </div>
 

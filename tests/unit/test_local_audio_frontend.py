@@ -521,6 +521,10 @@ def test_video_creation_workspace_supports_one_off_scene_composition():
     assert "selectedVideoOutputSize" in workspace
     assert "output_width: selectedVideoOutputSize.width" in workspace
     assert "output_height: selectedVideoOutputSize.height" in workspace
+    assert 'data-testid="video-creation-result-panel"' in workspace
+    assert 'data-testid="video-creation-composition-controls"' in workspace
+    assert "flex min-h-0 flex-col overflow-hidden rounded-lg border border-slate-200 bg-white p-4 shadow-sm" in workspace
+    assert "mt-3 min-h-0 flex-1 space-y-3 overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3" in workspace
     assert "mt-4 shrink-0 overflow-hidden" in workspace
     assert "aspect-video w-full" in workspace
     assert "aspect-[9/16]" in workspace
@@ -530,6 +534,7 @@ def test_video_creation_workspace_supports_one_off_scene_composition():
     assert "画面预览" in workspace
     assert "输出画幅" in workspace
     assert "h-[clamp(18rem,42vh,30rem)]" not in workspace
+    assert workspace.index('data-testid="video-creation-result-panel"') < workspace.index("构图设置")
     assert workspace.index("构图设置") < workspace.index("生成前预览")
 
 
