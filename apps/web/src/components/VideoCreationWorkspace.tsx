@@ -74,6 +74,7 @@ const VIDEO_CREATION_MODEL_LABELS: Record<string, string> = {
   quicktalk: "QuickTalk",
   wav2lip: "Wav2Lip",
 };
+const VIDEO_CREATION_OUTPUT_SIZE = { width: 1280, height: 720 } as const;
 const VIDEO_CREATION_SCRIPT_MAX_CHARS = 1000;
 const FASTERLIVEPORTRAIT_ANIMATION_REGION_OPTIONS: { id: FasterLivePortraitConfig["animation_region"]; label: string }[] = [
   { id: "lip", label: "嘴部" },
@@ -365,6 +366,8 @@ export function VideoCreationWorkspace({
       avatar_scale: videoAvatarDisplayScale,
       avatar_offset_x: videoAvatarAdjust.x,
       avatar_offset_y: videoAvatarAdjust.y,
+      output_width: VIDEO_CREATION_OUTPUT_SIZE.width,
+      output_height: VIDEO_CREATION_OUTPUT_SIZE.height,
     };
   }, [selectedScene?.background_color, selectedScene?.id, videoAvatarAdjust.scale, videoAvatarAdjust.x, videoAvatarAdjust.y, videoAvatarAnchor, videoAvatarDisplayScale, videoAvatarFit, videoBackgroundId]);
 
@@ -574,7 +577,7 @@ export function VideoCreationWorkspace({
 
   return (
     <main className="flex min-h-0 flex-1 flex-col bg-slate-100 p-4">
-      <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[20rem_minmax(0,1fr)_22rem]">
+      <div className="grid min-h-0 flex-1 gap-4 xl:grid-cols-[18rem_minmax(28rem,1fr)_minmax(32rem,42rem)]">
         <section className="min-h-0 overflow-y-auto rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -655,50 +658,6 @@ export function VideoCreationWorkspace({
               >
                 图片生成参考视频
               </button>
-            </div>
-          </div>
-          <div className="border-b border-slate-200 bg-slate-950 p-4">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-medium text-white/55">Composition Preview</p>
-                <h2 className="text-base font-semibold text-white">生成前预览</h2>
-              </div>
-              <span className="rounded-md border border-white/15 bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/75">
-                本次生成
-              </span>
-            </div>
-            <div className="relative h-[clamp(18rem,45vh,36rem)] w-full overflow-hidden rounded-lg border border-white/10 bg-white" style={{ backgroundColor: selectedScene?.background_color ?? "#f8fafc" }}>
-              {selectedVideoBackground?.kind === "image" ? (
-                <img src={sceneBackgroundUrl(selectedVideoBackground)} alt={selectedVideoBackground.name} className="absolute inset-0 h-full w-full object-cover" />
-              ) : null}
-              {selectedVideoBackground?.kind === "video" ? (
-                <div className="absolute inset-0 flex items-center justify-center bg-slate-900 px-4 text-center text-sm font-medium text-white/80">
-                  视频创作暂不支持视频背景
-                </div>
-              ) : null}
-              {!selectedVideoBackground ? (
-                <div className="absolute inset-0 bg-white" />
-              ) : null}
-              {selectedAvatar ? (
-                <div className={`absolute inset-0 flex p-4 sm:p-6 ${videoAvatarAnchorClass}`}>
-                  <div
-                    className="relative h-full w-full"
-                    style={{
-                      transform: `translate(${videoAvatarAdjust.x}px, ${videoAvatarAdjust.y}px) scale(${videoAvatarDisplayScale})`,
-                      transformOrigin: videoAvatarTransformOrigin,
-                    }}
-                  >
-                    <img
-                      src={buildApiUrl(`/avatars/${encodeURIComponent(selectedAvatar.id)}/preview`)}
-                      alt={selectedAvatar.name ?? selectedAvatar.id}
-                      className={`absolute inset-0 h-full w-full ${videoAvatarFit === "cover" ? "object-cover" : "object-contain"} ${videoAvatarObjectPosition}`}
-                    />
-                  </div>
-                </div>
-              ) : null}
-              <div className="pointer-events-none absolute inset-x-8 bottom-7 rounded border border-white/35 bg-slate-950/35 px-4 py-2 text-center text-sm font-semibold text-white/85">
-                字幕安全区
-              </div>
             </div>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
@@ -1088,9 +1047,53 @@ export function VideoCreationWorkspace({
           </div>
         </section>
 
-        <aside className="flex min-h-0 flex-col rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+        <aside className="flex min-h-0 flex-col overflow-y-auto rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs font-medium text-slate-500">Composition</p>
           <h2 className="mt-1 text-base font-semibold text-slate-950">构图设置</h2>
+          <div className="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-slate-950 p-3">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold text-white/55">画面预览</p>
+                <h3 className="text-sm font-semibold text-white">生成前预览</h3>
+              </div>
+              <span className="rounded-md border border-white/15 bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-white/75">
+                1280x720
+              </span>
+            </div>
+            <div className="relative aspect-video w-full overflow-hidden rounded-md border border-white/10 bg-white" style={{ backgroundColor: selectedScene?.background_color ?? "#f8fafc" }}>
+              {selectedVideoBackground?.kind === "image" ? (
+                <img src={sceneBackgroundUrl(selectedVideoBackground)} alt={selectedVideoBackground.name} className="absolute inset-0 h-full w-full object-cover" />
+              ) : null}
+              {selectedVideoBackground?.kind === "video" ? (
+                <div className="absolute inset-0 flex items-center justify-center bg-slate-900 px-4 text-center text-xs font-medium text-white/80">
+                  视频创作暂不支持视频背景
+                </div>
+              ) : null}
+              {!selectedVideoBackground ? (
+                <div className="absolute inset-0 bg-white" />
+              ) : null}
+              {selectedAvatar ? (
+                <div className={`absolute inset-0 flex p-4 ${videoAvatarAnchorClass}`}>
+                  <div
+                    className="relative h-full w-full"
+                    style={{
+                      transform: `translate(${videoAvatarAdjust.x}px, ${videoAvatarAdjust.y}px) scale(${videoAvatarDisplayScale})`,
+                      transformOrigin: videoAvatarTransformOrigin,
+                    }}
+                  >
+                    <img
+                      src={buildApiUrl(`/avatars/${encodeURIComponent(selectedAvatar.id)}/preview`)}
+                      alt={selectedAvatar.name ?? selectedAvatar.id}
+                      className={`absolute inset-0 h-full w-full ${videoAvatarFit === "cover" ? "object-cover" : "object-contain"} ${videoAvatarObjectPosition}`}
+                    />
+                  </div>
+                </div>
+              ) : null}
+              <div className="pointer-events-none absolute inset-x-5 bottom-5 rounded border border-white/35 bg-slate-950/35 px-3 py-1 text-center text-xs font-semibold text-white/80">
+                字幕安全区
+              </div>
+            </div>
+          </div>
           <div className="mt-3 space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
             <label className="block text-xs font-semibold text-slate-700">
               本次生成背景

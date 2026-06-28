@@ -112,6 +112,29 @@ def _coerce_composition_float(
     return value
 
 
+def _coerce_composition_int(
+    payload: Mapping[str, object],
+    key: str,
+    default: int,
+    *,
+    min_value: int,
+    max_value: int,
+) -> int:
+    raw = payload.get(key)
+    if raw in (None, ""):
+        value = default
+    elif isinstance(raw, str | int | float):
+        try:
+            value = int(raw)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"{key} must be an integer") from exc
+    else:
+        raise ValueError(f"{key} must be an integer")
+    if value < min_value or value > max_value:
+        raise ValueError(f"{key} must be between {min_value:g} and {max_value:g}")
+    return value + (value % 2)
+
+
 def _normalize_video_composition_config(
     settings: object,
     avatar_path: Path,
@@ -145,6 +168,8 @@ def _normalize_video_composition_config(
         "avatar_scale": _coerce_composition_float(config, "avatar_scale", 1.0, min_value=0.1, max_value=4.0),
         "avatar_offset_x": _coerce_composition_float(config, "avatar_offset_x", 0.0, min_value=-2000.0, max_value=2000.0),
         "avatar_offset_y": _coerce_composition_float(config, "avatar_offset_y", 0.0, min_value=-2000.0, max_value=2000.0),
+        "output_width": _coerce_composition_int(config, "output_width", 1280, min_value=320, max_value=3840),
+        "output_height": _coerce_composition_int(config, "output_height", 720, min_value=180, max_value=2160),
     }
 
 
@@ -237,7 +262,9 @@ def _apply_video_composition(
     if not frames or not config:
         return frames
     first = np.asarray(frames[0])
-    height, width = first.shape[:2]
+    frame_height, frame_width = first.shape[:2]
+    width = _coerce_composition_int(config, "output_width", int(frame_width), min_value=320, max_value=3840)
+    height = _coerce_composition_int(config, "output_height", int(frame_height), min_value=180, max_value=2160)
     background_raw = cv2.imread(str(config["background_path"]), cv2.IMREAD_COLOR)
     if background_raw is None:
         raise FileNotFoundError("background file not found")

@@ -341,6 +341,8 @@ export type VideoCreationCompositionConfig = {
   avatar_scale?: number;
   avatar_offset_x?: number;
   avatar_offset_y?: number;
+  output_width?: number;
+  output_height?: number;
 };
 
 export type CreateVideoCreationJobInput = {

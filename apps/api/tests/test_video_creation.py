@@ -1057,12 +1057,14 @@ async def test_video_creation_service_composites_generated_frames_over_scene_bac
             "avatar_scale": 1.0,
             "avatar_offset_x": 0,
             "avatar_offset_y": 0,
+            "output_width": 320,
+            "output_height": 180,
         },
     )
 
     assert result["export_video"]["model"] == "wav2lip"
     assert captured_frames
-    assert captured_frames[0].shape == (4, 4, 3)
+    assert captured_frames[0].shape == (180, 320, 3)
     assert captured_frames[0][0, 0].tolist() == [10, 20, 200]
 
 
