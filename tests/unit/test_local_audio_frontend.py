@@ -521,6 +521,7 @@ def test_video_creation_workspace_supports_one_off_scene_composition():
     assert "selectedVideoOutputSize" in workspace
     assert "output_width: selectedVideoOutputSize.width" in workspace
     assert "output_height: selectedVideoOutputSize.height" in workspace
+    assert "mt-4 shrink-0 overflow-hidden" in workspace
     assert "aspect-video w-full" in workspace
     assert "aspect-[9/16]" in workspace
     assert "aspect-square" in workspace

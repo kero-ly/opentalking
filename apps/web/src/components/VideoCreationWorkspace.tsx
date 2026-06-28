@@ -1058,7 +1058,7 @@ export function VideoCreationWorkspace({
         <aside className="flex min-h-0 flex-col overflow-y-auto rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-xs font-medium text-slate-500">Composition</p>
           <h2 className="mt-1 text-base font-semibold text-slate-950">构图设置</h2>
-          <div className="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-slate-950 p-3">
+          <div className="mt-4 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-slate-950 p-3">
             <div className="mb-2 flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold text-white/55">画面预览</p>
