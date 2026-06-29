@@ -766,6 +766,8 @@ def _write_video_only(path: Path, frames: list[np.ndarray], fps: float) -> None:
                 arr = np.asarray(resized, dtype=np.uint8)
             if arr.ndim == 3 and arr.shape[2] >= 4:
                 arr = arr[:, :, :3]
+            if arr.ndim == 3 and arr.shape[2] == 3:
+                arr = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
             writer.write(arr)
     finally:
         writer.release()

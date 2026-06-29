@@ -140,27 +140,6 @@ const FASTERLIVEPORTRAIT_SWITCHES: {
 
 const INDEXTTS_PROVIDER_SET = new Set<TtsProviderExtended>(["indextts"]);
 
-const VIDEO_AVATAR_ANCHOR_CLASSES = {
-  center: "items-center justify-center",
-  bottom: "items-end justify-center",
-  left: "items-center justify-start",
-  right: "items-center justify-end",
-} as const;
-
-const VIDEO_AVATAR_OBJECT_POSITIONS = {
-  center: "object-center",
-  bottom: "object-[center_bottom]",
-  left: "object-[left_center]",
-  right: "object-[right_center]",
-} as const;
-
-const VIDEO_AVATAR_TRANSFORM_ORIGINS = {
-  center: "center",
-  bottom: "center bottom",
-  left: "left center",
-  right: "right center",
-} as const;
-
 const DEFAULT_INDEXTTS_CONFIG: IndexTTSConfig = {
   emotion_mode: "voice",
   emo_alpha: 0.6,
@@ -360,9 +339,29 @@ export function VideoCreationWorkspace({
   const videoAvatarBaseScale = selectedScene?.avatar_scale ?? 1;
   const videoAvatarDisplayScale = videoAvatarBaseScale * videoAvatarAdjust.scale;
   const selectedVideoOutputSize = VIDEO_CREATION_OUTPUT_SIZES[videoOutputAspect];
-  const videoAvatarAnchorClass = VIDEO_AVATAR_ANCHOR_CLASSES[videoAvatarAnchor] ?? VIDEO_AVATAR_ANCHOR_CLASSES.center;
-  const videoAvatarObjectPosition = VIDEO_AVATAR_OBJECT_POSITIONS[videoAvatarAnchor] ?? VIDEO_AVATAR_OBJECT_POSITIONS.center;
-  const videoAvatarTransformOrigin = VIDEO_AVATAR_TRANSFORM_ORIGINS[videoAvatarAnchor] ?? VIDEO_AVATAR_TRANSFORM_ORIGINS.center;
+  const videoAvatarPreviewLayer = useMemo(() => {
+    const canvasW = selectedVideoOutputSize.width;
+    const canvasH = selectedVideoOutputSize.height;
+    const avatarW = Math.max(1, Number(selectedAvatar?.width || canvasW));
+    const avatarH = Math.max(1, Number(selectedAvatar?.height || canvasH));
+    const containScale = Math.min(canvasW / avatarW, canvasH / avatarH);
+    const coverScale = Math.max(canvasW / avatarW, canvasH / avatarH);
+    const fitScale = videoAvatarFit === "cover" ? coverScale : containScale;
+    const layerW = Math.max(1, avatarW * fitScale * videoAvatarDisplayScale);
+    const layerH = Math.max(1, avatarH * fitScale * videoAvatarDisplayScale);
+    const originX = videoAvatarAnchor === "left"
+      ? 0
+      : videoAvatarAnchor === "right"
+        ? canvasW - layerW
+        : (canvasW - layerW) / 2;
+    const originY = videoAvatarAnchor === "bottom" ? canvasH - layerH : (canvasH - layerH) / 2;
+    return {
+      leftPct: ((originX + videoAvatarAdjust.x) / canvasW) * 100,
+      topPct: ((originY + videoAvatarAdjust.y) / canvasH) * 100,
+      widthPct: (layerW / canvasW) * 100,
+      heightPct: (layerH / canvasH) * 100,
+    };
+  }, [selectedAvatar?.height, selectedAvatar?.width, selectedVideoOutputSize.height, selectedVideoOutputSize.width, videoAvatarAdjust.x, videoAvatarAdjust.y, videoAvatarAnchor, videoAvatarDisplayScale, videoAvatarFit]);
   const compositionConfig = useMemo<VideoCreationCompositionConfig | null>(() => {
     if (!videoBackgroundId) return null;
     return {
@@ -1103,20 +1102,20 @@ export function VideoCreationWorkspace({
                 <div className="absolute inset-0 bg-white" />
               ) : null}
               {selectedAvatar ? (
-                <div className={`absolute inset-0 flex p-4 ${videoAvatarAnchorClass}`}>
-                  <div
-                    className="relative h-full w-full"
-                    style={{
-                      transform: `translate(${videoAvatarAdjust.x}px, ${videoAvatarAdjust.y}px) scale(${videoAvatarDisplayScale})`,
-                      transformOrigin: videoAvatarTransformOrigin,
-                    }}
-                  >
-                    <img
-                      src={buildApiUrl(`/avatars/${encodeURIComponent(selectedAvatar.id)}/preview`)}
-                      alt={selectedAvatar.name ?? selectedAvatar.id}
-                      className={`absolute inset-0 h-full w-full ${videoAvatarFit === "cover" ? "object-cover" : "object-contain"} ${videoAvatarObjectPosition}`}
-                    />
-                  </div>
+                <div
+                  className="absolute"
+                  style={{
+                    left: `${videoAvatarPreviewLayer.leftPct}%`,
+                    top: `${videoAvatarPreviewLayer.topPct}%`,
+                    width: `${videoAvatarPreviewLayer.widthPct}%`,
+                    height: `${videoAvatarPreviewLayer.heightPct}%`,
+                  }}
+                >
+                  <img
+                    src={buildApiUrl(`/avatars/${encodeURIComponent(selectedAvatar.id)}/preview`)}
+                    alt={selectedAvatar.name ?? selectedAvatar.id}
+                    className="absolute inset-0 h-full w-full object-fill"
+                  />
                 </div>
               ) : null}
               <div className="pointer-events-none absolute inset-x-5 bottom-5 rounded border border-white/35 bg-slate-950/35 px-3 py-1 text-center text-xs font-semibold text-white/80">

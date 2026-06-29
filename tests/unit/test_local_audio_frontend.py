@@ -519,6 +519,12 @@ def test_video_creation_workspace_supports_one_off_scene_composition():
     assert '"1:1"' in workspace
     assert "videoOutputAspect" in workspace
     assert "selectedVideoOutputSize" in workspace
+    assert "videoAvatarPreviewLayer" in workspace
+    assert "left: `${videoAvatarPreviewLayer.leftPct}%`" in workspace
+    assert "top: `${videoAvatarPreviewLayer.topPct}%`" in workspace
+    assert "width: `${videoAvatarPreviewLayer.widthPct}%`" in workspace
+    assert "height: `${videoAvatarPreviewLayer.heightPct}%`" in workspace
+    assert "translate(${videoAvatarAdjust.x}px" not in workspace
     assert "output_width: selectedVideoOutputSize.width" in workspace
     assert "output_height: selectedVideoOutputSize.height" in workspace
     assert 'data-testid="video-creation-result-panel"' in workspace

@@ -202,6 +202,33 @@ def test_video_creation_route_rejects_invalid_composition_config(tmp_path: Path,
     assert response.json()["detail"] == "composition_config must be valid JSON"
 
 
+def test_write_video_only_converts_rgb_frames_for_opencv_writer(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from opentalking import video_creation as video_creation_module
+
+    captured: list[np.ndarray] = []
+
+    class FakeWriter:
+        def isOpened(self) -> bool:
+            return True
+
+        def write(self, frame: np.ndarray) -> None:
+            captured.append(np.asarray(frame).copy())
+
+        def release(self) -> None:
+            return None
+
+    monkeypatch.setattr(video_creation_module.cv2, "VideoWriter_fourcc", lambda *_args: 0)
+    monkeypatch.setattr(video_creation_module.cv2, "VideoWriter", lambda *_args, **_kwargs: FakeWriter())
+
+    rgb = np.zeros((2, 2, 3), dtype=np.uint8)
+    rgb[:, :] = [10, 20, 200]
+
+    video_creation_module._write_video_only(tmp_path / "out.mp4", [rgb], 25)
+
+    assert captured
+    assert captured[0][0, 0].tolist() == [200, 20, 10]
+
+
 def test_video_creation_quicktalk_default_backend_is_omnirt(monkeypatch: pytest.MonkeyPatch) -> None:
     from opentalking.core.model_config import clear_model_config_cache
     from opentalking.providers.synthesis.backends import resolve_model_backend
