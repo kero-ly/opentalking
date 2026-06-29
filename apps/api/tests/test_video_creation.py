@@ -202,7 +202,7 @@ def test_video_creation_route_rejects_invalid_composition_config(tmp_path: Path,
     assert response.json()["detail"] == "composition_config must be valid JSON"
 
 
-def test_write_video_only_converts_rgb_frames_for_opencv_writer(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_write_video_only_preserves_bgr_frames_for_opencv_writer(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     from opentalking import video_creation as video_creation_module
 
     captured: list[np.ndarray] = []
@@ -220,10 +220,10 @@ def test_write_video_only_converts_rgb_frames_for_opencv_writer(tmp_path: Path, 
     monkeypatch.setattr(video_creation_module.cv2, "VideoWriter_fourcc", lambda *_args: 0)
     monkeypatch.setattr(video_creation_module.cv2, "VideoWriter", lambda *_args, **_kwargs: FakeWriter())
 
-    rgb = np.zeros((2, 2, 3), dtype=np.uint8)
-    rgb[:, :] = [10, 20, 200]
+    bgr = np.zeros((2, 2, 3), dtype=np.uint8)
+    bgr[:, :] = [200, 20, 10]
 
-    video_creation_module._write_video_only(tmp_path / "out.mp4", [rgb], 25)
+    video_creation_module._write_video_only(tmp_path / "out.mp4", [bgr], 25)
 
     assert captured
     assert captured[0][0, 0].tolist() == [200, 20, 10]
@@ -1092,7 +1092,7 @@ async def test_video_creation_service_composites_generated_frames_over_scene_bac
     assert result["export_video"]["model"] == "wav2lip"
     assert captured_frames
     assert captured_frames[0].shape == (180, 320, 3)
-    assert captured_frames[0][0, 0].tolist() == [10, 20, 200]
+    assert captured_frames[0][0, 0].tolist() == [200, 20, 10]
 
 
 @pytest.mark.asyncio

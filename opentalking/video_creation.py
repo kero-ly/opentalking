@@ -216,22 +216,22 @@ def _composite_avatar_layer(
     layer = np.asarray(frame, dtype=np.uint8)
     if layer.ndim != 3 or layer.shape[2] < 3:
         return background
-    rgb = layer[:, :, :3]
+    bgr = layer[:, :, :3]
     if layer.shape[2] >= 4:
         alpha = layer[:, :, 3].astype(np.float32) / 255.0
     elif fallback_alpha is not None:
         alpha = fallback_alpha
-        if alpha.shape[:2] != rgb.shape[:2]:
-            alpha = cv2.resize(alpha, (rgb.shape[1], rgb.shape[0]), interpolation=cv2.INTER_AREA).astype(np.float32)
+        if alpha.shape[:2] != bgr.shape[:2]:
+            alpha = cv2.resize(alpha, (bgr.shape[1], bgr.shape[0]), interpolation=cv2.INTER_AREA).astype(np.float32)
     else:
         alpha = np.ones(layer.shape[:2], dtype=np.float32)
-    fit_scale = min(float(canvas_w) / float(rgb.shape[1]), float(canvas_h) / float(rgb.shape[0]))
+    fit_scale = min(float(canvas_w) / float(bgr.shape[1]), float(canvas_h) / float(bgr.shape[0]))
     if avatar_fit == "cover":
-        fit_scale = max(float(canvas_w) / float(rgb.shape[1]), float(canvas_h) / float(rgb.shape[0]))
+        fit_scale = max(float(canvas_w) / float(bgr.shape[1]), float(canvas_h) / float(bgr.shape[0]))
     scale = max(0.01, fit_scale * float(avatar_scale))
-    layer_w = max(1, int(round(rgb.shape[1] * scale)))
-    layer_h = max(1, int(round(rgb.shape[0] * scale)))
-    rgb_resized = cv2.resize(rgb, (layer_w, layer_h), interpolation=cv2.INTER_AREA if scale < 1 else cv2.INTER_LINEAR)
+    layer_w = max(1, int(round(bgr.shape[1] * scale)))
+    layer_h = max(1, int(round(bgr.shape[0] * scale)))
+    bgr_resized = cv2.resize(bgr, (layer_w, layer_h), interpolation=cv2.INTER_AREA if scale < 1 else cv2.INTER_LINEAR)
     alpha_resized = cv2.resize(alpha, (layer_w, layer_h), interpolation=cv2.INTER_AREA if scale < 1 else cv2.INTER_LINEAR)
     origin_x, origin_y = _avatar_anchor_origin(avatar_anchor, canvas_w, canvas_h, layer_w, layer_h)
     left = int(round(origin_x + avatar_offset_x))
@@ -247,7 +247,7 @@ def _composite_avatar_layer(
     src_right = src_left + (dst_right - dst_left)
     src_bottom = src_top + (dst_bottom - dst_top)
     out = background.copy()
-    fg = rgb_resized[src_top:src_bottom, src_left:src_right].astype(np.float32)
+    fg = bgr_resized[src_top:src_bottom, src_left:src_right].astype(np.float32)
     mask = alpha_resized[src_top:src_bottom, src_left:src_right].astype(np.float32)[:, :, None]
     bg = out[dst_top:dst_bottom, dst_left:dst_right].astype(np.float32)
     out[dst_top:dst_bottom, dst_left:dst_right] = np.clip((fg * mask) + (bg * (1.0 - mask)), 0, 255).astype(np.uint8)
@@ -268,8 +268,7 @@ def _apply_video_composition(
     background_raw = cv2.imread(str(config["background_path"]), cv2.IMREAD_COLOR)
     if background_raw is None:
         raise FileNotFoundError("background file not found")
-    background_rgb = cv2.cvtColor(background_raw, cv2.COLOR_BGR2RGB)
-    background = _resize_cover(background_rgb, int(width), int(height))
+    background = _resize_cover(background_raw, int(width), int(height))
     fallback_alpha = _load_avatar_alpha_mask(config.get("avatar_mask_path"))
     avatar_scale = _coerce_composition_float(config, "avatar_scale", 1.0, min_value=0.1, max_value=4.0)
     avatar_offset_x = _coerce_composition_float(config, "avatar_offset_x", 0.0, min_value=-2000.0, max_value=2000.0)
@@ -766,8 +765,6 @@ def _write_video_only(path: Path, frames: list[np.ndarray], fps: float) -> None:
                 arr = np.asarray(resized, dtype=np.uint8)
             if arr.ndim == 3 and arr.shape[2] >= 4:
                 arr = arr[:, :, :3]
-            if arr.ndim == 3 and arr.shape[2] == 3:
-                arr = cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
             writer.write(arr)
     finally:
         writer.release()
