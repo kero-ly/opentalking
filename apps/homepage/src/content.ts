@@ -16,7 +16,7 @@ export type CaseStudy = {
   slug: string;
   title: string;
   eyebrow: string;
-  category: "livestream" | "media" | "tourism" | "character" | "companion" | "experiment";
+  category: "livestream" | "media" | "tourism" | "healthcare" | "character" | "companion" | "experiment";
   categoryLabel: string;
   description: string;
   detailIntro: string;
@@ -91,6 +91,7 @@ export const caseCategories = [
   { key: "livestream", label: "直播带货" },
   { key: "media", label: "媒体播报" },
   { key: "tourism", label: "文旅导览" },
+  { key: "healthcare", label: "医疗服务" },
   { key: "character", label: "角色内容" },
   { key: "companion", label: "陪伴互动" },
   { key: "experiment", label: "创意实验" },
@@ -205,6 +206,53 @@ export const caseStudies: CaseStudy[] = [
       },
     ],
     outcomes: ["景区讲解视频化", "导览内容可复用", "支持后续多语言与问答扩展"],
+  },
+  {
+    slug: "medical-guide-assistant",
+    title: "医疗导诊助手",
+    eyebrow: "智能导诊",
+    category: "healthcare",
+    categoryLabel: "医疗服务",
+    description:
+      "面向医院大厅、线上问诊入口和健康服务平台，用数字人完成就诊指引、科室导航和检查咨询。",
+    detailIntro:
+      "以医疗导诊助手为例，把数字人讲解、导诊流程、科室导航和多语言服务整合到同一产品体验中，适合医院服务台、互联网医院和健康管理平台。",
+    route: "中英双语导诊演示",
+    features: ["就诊指引", "科室导航", "双语服务"],
+    image: "/images/cases/medical-guide-zh-preview.png",
+    accent: "cyan",
+    videoUrl: "https://1441945933.vod-qcloud.com/0b66444dvodcq1441945933/9b52494c5001834809859448065/S7eTJ67rBLUA.mp4",
+    videoVariants: [
+      {
+        title: "中文导诊助手",
+        description: "面向中文就诊用户，展示挂号缴费、门诊诊室、检查科室和药房等关键导诊路径。",
+        url: "https://1441945933.vod-qcloud.com/0b66444dvodcq1441945933/9b52494c5001834809859448065/S7eTJ67rBLUA.mp4",
+        poster: "/images/cases/medical-guide-zh-preview.png",
+        videoId: "case-medical-guide-assistant-zh",
+      },
+      {
+        title: "English medical guide",
+        description: "为外籍患者或国际医疗服务场景提供英文导诊说明，覆盖问诊入口、科室导航和检查咨询。",
+        url: "https://1441945933.vod-qcloud.com/0b66444dvodcq1441945933/82952c555001834809852510401/uTMRhy1wCnoA.mp4",
+        poster: "/images/cases/medical-guide-en-preview.png",
+        videoId: "case-medical-guide-assistant-en",
+      },
+    ],
+    sections: [
+      {
+        title: "场景挑战",
+        body: "医院导诊需要把流程、地点、时间和注意事项讲清楚，同时保持服务语气稳定，避免用户在复杂流程里反复询问。",
+      },
+      {
+        title: "适合扩展",
+        body: "可以接入医院知识库、科室导航、检查须知、挂号规则和多语言问答，让数字人承担高频咨询和基础分诊前置服务。",
+      },
+      {
+        title: "推荐模型",
+        body: "推荐 QuickTalk / FlashTalk：先快速验证导诊脚本和服务流程，再根据大厅屏幕、服务终端或线上入口的画质要求升级。",
+      },
+    ],
+    outcomes: ["高频导诊问题自动化", "减少服务台重复咨询", "支持中英文患者服务"],
   },
   {
     slug: "news-anchor",
