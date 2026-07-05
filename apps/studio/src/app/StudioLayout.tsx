@@ -163,22 +163,35 @@ export function StudioLayout({ activeRouteId, children, onNavigate, onSignOut, s
               <button type="button" className="flex h-10 w-10 items-center justify-center rounded-lg border border-studio-border bg-white text-studio-muted hover:text-studio-text" aria-label="帮助">
                 <HelpCircle className="h-4 w-4" aria-hidden />
               </button>
-              <button
-                type="button"
-                onClick={() => onNavigate(getRoutePath("settings"))}
-                className="flex min-w-0 items-center gap-2 rounded-full border border-violet-100 bg-gradient-to-br from-white to-studio-actionSoft py-1 pl-1 pr-3"
-              >
-                <span className="relative h-9 w-9 rounded-full bg-gradient-to-br from-studio-primary to-studio-actionEnd">
-                  <span className="absolute inset-x-2 bottom-2 top-2 rounded-full rounded-b-lg bg-white/85" />
-                </span>
-                <span className="hidden text-left sm:block">
-                  <span className="block text-xs font-bold text-studio-text">{currentUser.name}</span>
-                  <span className="block text-[11px] font-bold text-violet-700">{session?.invitationVerified ? "邀请码已验证" : "试用中"}</span>
-                </span>
-              </button>
-              <Button className="hidden sm:inline-flex" variant="ghost" onClick={onSignOut}>
-                退出
-              </Button>
+              {session?.invitationVerified ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => onNavigate(getRoutePath("settings"))}
+                    className="flex min-w-0 items-center gap-2 rounded-full border border-violet-100 bg-gradient-to-br from-white to-studio-actionSoft py-1 pl-1 pr-3"
+                  >
+                    <span className="relative h-9 w-9 rounded-full bg-gradient-to-br from-studio-primary to-studio-actionEnd">
+                      <span className="absolute inset-x-2 bottom-2 top-2 rounded-full rounded-b-lg bg-white/85" />
+                    </span>
+                    <span className="hidden text-left sm:block">
+                      <span className="block text-xs font-bold text-studio-text">{currentUser.name}</span>
+                      <span className="block text-[11px] font-bold text-violet-700">邀请码已验证</span>
+                    </span>
+                  </button>
+                  <Button className="hidden sm:inline-flex" variant="ghost" onClick={onSignOut}>
+                    退出
+                  </Button>
+                </>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" onClick={() => onNavigate(getRoutePath("login"))}>
+                    登录
+                  </Button>
+                  <Button variant="primary" onClick={() => onNavigate(getRoutePath("register"))}>
+                    注册
+                  </Button>
+                </div>
+              )}
             </div>
           </header>
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { clearStudioSession, readStudioSession, saveStudioSession, type StudioSession } from "../entities/auth";
 import { AssetLibraryPage } from "../pages/AssetLibraryPage";
+import { AuthRequiredPage } from "../pages/AuthRequiredPage";
 import { AuthPage, getAuthCopy } from "../pages/AuthPages";
 import { CreateRealtimePage } from "../pages/CreateRealtimePage";
 import { CreateVideoPage } from "../pages/CreateVideoPage";
@@ -10,7 +11,7 @@ import { SolutionKitsPage } from "../pages/SolutionKitsPage";
 import { UtilityPage } from "../pages/UtilityPages";
 import { WorkspacePage } from "../pages/WorkspacePage";
 import { AuthLayout } from "./AuthLayout";
-import { findStudioRoute, type StudioRouteId } from "./routes";
+import { findStudioRoute, isRoutePublic, type StudioRouteId } from "./routes";
 import { StudioLayout } from "./StudioLayout";
 
 function readPathname(): string {
@@ -89,17 +90,8 @@ export function App() {
   const handleSignOut = () => {
     clearStudioSession();
     setSession(null);
-    navigate("/login");
+    navigate("/workspace");
   };
-
-  if (route.section !== "auth" && !session?.invitationVerified) {
-    const copy = getAuthCopy("login");
-    return (
-      <AuthLayout title={copy.title} subtitle="请先登录并验证邀请码，验证通过后才能体验 Studio。">
-        <AuthPage mode="login" onAuthenticated={handleAuthenticated} />
-      </AuthLayout>
-    );
-  }
 
   if (route.section === "auth") {
     const mode = route.id === "register" ? "register" : route.id === "trial" ? "trial" : "login";
@@ -113,7 +105,11 @@ export function App() {
 
   return (
     <StudioLayout activeRouteId={route.id} onNavigate={navigate} onSignOut={handleSignOut} session={session}>
-      {pageForRoute(route.id, pathname, navigate)}
+      {!session?.invitationVerified && !isRoutePublic(route.id) ? (
+        <AuthRequiredPage onNavigate={navigate} />
+      ) : (
+        pageForRoute(route.id, pathname, navigate)
+      )}
     </StudioLayout>
   );
 }

@@ -50,8 +50,23 @@ export const STUDIO_ROUTES: StudioRoute[] = [
   { id: "settings", path: "/settings", label: "设置", section: "workspace" },
 ];
 
+const PROTECTED_ROUTE_IDS = new Set<StudioRouteId>([
+  "createVideo",
+  "createRealtime",
+  "projects",
+  "projectDetail",
+  "billing",
+  "team",
+  "apiAccess",
+  "settings",
+]);
+
 export function getRoutePath(id: StudioRouteId): string {
   return STUDIO_ROUTES.find((route) => route.id === id)?.path ?? "/workspace";
+}
+
+export function isRoutePublic(id: StudioRouteId): boolean {
+  return !PROTECTED_ROUTE_IDS.has(id);
 }
 
 function matchParameterizedRoute(pattern: string, pathname: string): boolean {
