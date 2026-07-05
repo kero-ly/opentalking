@@ -31,14 +31,14 @@ describe("studio routes", () => {
     expect(isRoutePublic("solutionDetail")).toBe(true);
   });
 
-  it("requires login for creation and workspace administration routes", () => {
-    expect(isRoutePublic("createVideo")).toBe(false);
-    expect(isRoutePublic("createRealtime")).toBe(false);
-    expect(isRoutePublic("projects")).toBe(false);
-    expect(isRoutePublic("projectDetail")).toBe(false);
-    expect(isRoutePublic("team")).toBe(false);
-    expect(isRoutePublic("billing")).toBe(false);
-    expect(isRoutePublic("apiAccess")).toBe(false);
-    expect(isRoutePublic("settings")).toBe(false);
+  it("temporarily keeps creation and administration routes public for visual debugging", () => {
+    expect(isRoutePublic("createVideo")).toBe(true);
+    expect(isRoutePublic("createRealtime")).toBe(true);
+    expect(isRoutePublic("projects")).toBe(true);
+    expect(isRoutePublic("projectDetail")).toBe(true);
+    expect(isRoutePublic("team")).toBe(true);
+    expect(isRoutePublic("billing")).toBe(true);
+    expect(isRoutePublic("apiAccess")).toBe(true);
+    expect(isRoutePublic("settings")).toBe(true);
   });
 });

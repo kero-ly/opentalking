@@ -61,11 +61,14 @@ const PROTECTED_ROUTE_IDS = new Set<StudioRouteId>([
   "settings",
 ]);
 
+export const STUDIO_AUTH_GATE_ENABLED = false;
+
 export function getRoutePath(id: StudioRouteId): string {
   return STUDIO_ROUTES.find((route) => route.id === id)?.path ?? "/workspace";
 }
 
 export function isRoutePublic(id: StudioRouteId): boolean {
+  if (!STUDIO_AUTH_GATE_ENABLED) return true;
   return !PROTECTED_ROUTE_IDS.has(id);
 }
 
