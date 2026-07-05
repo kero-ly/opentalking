@@ -88,8 +88,8 @@ function NavGroup({
               onClick={() => onNavigate(getRoutePath(item.id))}
               className={`flex min-h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-sm font-bold transition-colors ${
                 active
-                  ? "bg-white text-studio-primaryStrong shadow-[0_10px_24px_rgba(15,118,110,0.1)]"
-                  : "text-slate-600 hover:bg-white/70 hover:text-studio-text"
+                  ? "bg-white text-studio-primaryStrong shadow-[0_10px_24px_rgba(108,99,255,0.14)]"
+                  : "text-slate-600 hover:bg-white/70 hover:text-studio-primaryStrong"
               }`}
             >
               <Icon className="h-4 w-4 shrink-0" aria-hidden />
@@ -107,11 +107,11 @@ export function StudioLayout({ activeRouteId, children, onNavigate, onSignOut, s
   const currentUser = session?.user ?? demoUser;
 
   return (
-    <div className="min-h-screen bg-studio-background text-studio-text">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_10%_8%,#ECEBFF_0,transparent_32%),radial-gradient(circle_at_92%_10%,#FFE8F1_0,transparent_34%),linear-gradient(120deg,#F8F5FF_0%,#FFFFFF_48%,#FFF3F8_100%)] text-studio-text">
       <div className="mx-auto flex min-h-screen max-w-[1680px]">
-        <aside className="hidden w-64 shrink-0 flex-col border-r border-studio-border bg-gradient-to-b from-studio-sidebar via-[#F7FFFD] to-white px-4 py-5 lg:flex">
+        <aside className="hidden w-64 shrink-0 flex-col border-r border-studio-border bg-gradient-to-b from-white via-studio-sidebar to-studio-mint px-4 py-5 lg:flex">
           <button type="button" onClick={() => onNavigate(getRoutePath("workspace"))} className="flex items-center gap-3 px-2 pb-3 text-left">
-            <span className="h-9 w-9 rounded-xl bg-gradient-to-br from-studio-primary to-[#22C7B8] shadow-inner" />
+            <span className="h-9 w-9 rounded-xl bg-gradient-to-br from-studio-primary to-studio-actionEnd shadow-inner" />
             <span>
               <span className="block text-base font-bold text-slate-950">OpenTalking</span>
               <span className="block text-xs font-semibold text-studio-muted">Studio</span>
@@ -133,11 +133,11 @@ export function StudioLayout({ activeRouteId, children, onNavigate, onSignOut, s
             <NavGroup activeRouteId={activeRouteId} items={workspaceItems} label="空间" onNavigate={onNavigate} />
           </nav>
 
-          <section className="mt-4 rounded-xl border border-sky-100 bg-gradient-to-br from-white to-cyan-50 p-4">
+          <section className="mt-4 rounded-xl border border-studio-primarySoft bg-gradient-to-br from-white to-studio-actionSoft p-4">
             <p className="text-sm font-bold text-studio-text">{demoQuota.planName}</p>
             <p className="mt-1 text-xs leading-5 text-studio-muted">本月剩余 {demoQuota.remainingMinutes} 分钟生成额度。</p>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
-              <div className="h-full rounded-full bg-gradient-to-r from-studio-primary to-sky-400" style={{ width: `${usagePercent}%` }} />
+              <div className="h-full rounded-full bg-gradient-to-r from-studio-action to-studio-actionEnd" style={{ width: `${usagePercent}%` }} />
             </div>
           </section>
         </aside>
@@ -152,7 +152,7 @@ export function StudioLayout({ activeRouteId, children, onNavigate, onSignOut, s
             <div className="flex min-w-0 flex-1 items-center justify-between gap-3 md:flex-none md:justify-end">
               <button
                 type="button"
-                className="rounded-full border border-studio-primarySoft bg-studio-mint px-3 py-2 text-sm font-bold text-studio-primaryStrong"
+                className="rounded-full border border-studio-actionSoft bg-studio-actionSoft px-3 py-2 text-sm font-bold text-studio-actionStrong"
                 onClick={() => onNavigate(getRoutePath("billing"))}
               >
                 {demoQuota.coinBalance} 言币
@@ -170,7 +170,7 @@ export function StudioLayout({ activeRouteId, children, onNavigate, onSignOut, s
                     onClick={() => onNavigate(getRoutePath("settings"))}
                     className="flex min-w-0 items-center gap-2 rounded-full border border-studio-primarySoft bg-gradient-to-br from-white to-studio-mint py-1 pl-1 pr-3"
                   >
-                    <span className="relative h-9 w-9 rounded-full bg-gradient-to-br from-studio-primary to-[#22C7B8]">
+                    <span className="relative h-9 w-9 rounded-full bg-gradient-to-br from-studio-primary to-studio-actionEnd">
                       <span className="absolute inset-x-2 bottom-2 top-2 rounded-full rounded-b-lg bg-white/85" />
                     </span>
                     <span className="hidden text-left sm:block">

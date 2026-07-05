@@ -9,7 +9,7 @@ type AuthRequiredPageProps = {
 export function AuthRequiredPage({ onNavigate }: AuthRequiredPageProps) {
   return (
     <Card className="overflow-hidden">
-      <div className="grid gap-6 bg-gradient-to-br from-studio-sidebar via-white to-studio-actionSoft/80 p-6 lg:grid-cols-[1fr_360px]">
+      <div className="grid gap-6 bg-gradient-to-br from-white via-studio-primarySoft/70 to-studio-actionSoft p-6 lg:grid-cols-[1fr_360px]">
         <div>
           <span className="inline-flex items-center gap-2 rounded-full border border-studio-primarySoft bg-white/80 px-3 py-1 text-xs font-bold text-studio-primaryStrong">
             <LockKeyhole className="h-3.5 w-3.5" aria-hidden />
@@ -29,7 +29,7 @@ export function AuthRequiredPage({ onNavigate }: AuthRequiredPageProps) {
             </Button>
           </div>
         </div>
-        <div className="relative min-h-56 overflow-hidden rounded-xl border border-white/70 bg-gradient-to-br from-studio-primarySoft via-blue-100 to-studio-actionSoft">
+        <div className="relative min-h-56 overflow-hidden rounded-xl border border-white/70 bg-gradient-to-br from-studio-primarySoft via-white to-studio-actionSoft">
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.52)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.52)_1px,transparent_1px)] bg-[size:32px_32px]" />
           <Sparkles className="absolute left-5 top-5 h-8 w-8 text-studio-primary" aria-hidden />
           <div className="absolute bottom-5 left-5 right-5 rounded-xl bg-white/82 p-4 text-sm font-bold leading-6 text-studio-text backdrop-blur">

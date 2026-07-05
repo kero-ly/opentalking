@@ -12,7 +12,7 @@ export function SolutionKitDetailPage({ id }: SolutionKitDetailPageProps) {
 
   return (
     <div className="grid gap-5">
-      <Card className="grid gap-6 bg-gradient-to-br from-studio-sidebar via-white to-studio-actionSoft/70 p-6 xl:grid-cols-[1fr_360px]">
+      <Card className="grid gap-6 bg-gradient-to-br from-white via-studio-primarySoft/70 to-studio-actionSoft p-6 xl:grid-cols-[1fr_360px]">
         <div>
           <Badge tone="primary">{kit.tags[0]}</Badge>
           <h1 className="mt-4 text-2xl font-bold text-studio-text">{kit.name}</h1>
@@ -22,7 +22,7 @@ export function SolutionKitDetailPage({ id }: SolutionKitDetailPageProps) {
             <Button>保存为自定义副本</Button>
           </div>
         </div>
-        <div className="rounded-xl border border-white/70 bg-gradient-to-br from-studio-primarySoft via-blue-100 to-studio-actionSoft p-5">
+        <div className="rounded-xl border border-white/70 bg-gradient-to-br from-studio-primarySoft via-white to-studio-actionSoft p-5">
           <p className="text-sm font-bold text-studio-primaryStrong">推荐比例</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {kit.recommendedAspectRatios.map((ratio) => (
@@ -38,7 +38,7 @@ export function SolutionKitDetailPage({ id }: SolutionKitDetailPageProps) {
         </CardHeader>
         <div className="grid gap-3 p-5 md:grid-cols-2 xl:grid-cols-4">
           {kit.assetIds.map((assetId) => (
-            <div key={assetId} className="rounded-xl border border-studio-border bg-white p-4 text-sm font-bold text-studio-text">
+            <div key={assetId} className="rounded-xl border border-studio-border bg-white/90 p-4 text-sm font-bold text-studio-text">
               {assetId}
             </div>
           ))}

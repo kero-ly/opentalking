@@ -10,7 +10,7 @@ type SolutionKitsPageProps = {
 export function SolutionKitsPage({ onNavigate }: SolutionKitsPageProps) {
   return (
     <div className="grid gap-5">
-      <Card className="bg-gradient-to-br from-white via-studio-mint to-studio-actionSoft/70 p-6">
+      <Card className="bg-gradient-to-br from-white via-studio-primarySoft/70 to-studio-actionSoft p-6">
         <Badge tone="warm">Solution Kits</Badge>
         <h1 className="mt-4 text-2xl font-bold text-studio-text">解决方案包</h1>
         <p className="mt-2 max-w-3xl text-sm leading-7 text-studio-muted">

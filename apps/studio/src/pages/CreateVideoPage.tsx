@@ -14,7 +14,7 @@ const modes = [
 export function CreateVideoPage() {
   return (
     <div className="grid gap-5">
-      <Card className="bg-gradient-to-br from-white via-studio-mint to-studio-actionSoft/70 p-6">
+      <Card className="bg-gradient-to-br from-white via-studio-primarySoft/70 to-studio-actionSoft p-6">
         <h1 className="text-2xl font-bold text-studio-text">创建数字人视频</h1>
         <p className="mt-2 max-w-3xl text-sm leading-7 text-studio-muted">
           第一版先搭好正式创作入口，后续接入现有视频生成任务、音色复刻和 PPT/PDF 工作流。

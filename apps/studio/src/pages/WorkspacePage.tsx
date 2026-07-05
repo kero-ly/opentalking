@@ -18,10 +18,10 @@ type WorkspacePageProps = {
 export function WorkspacePage({ onNavigate }: WorkspacePageProps) {
   return (
     <div className="grid gap-5">
-      <section className="grid gap-4 rounded-xl border border-studio-border bg-gradient-to-br from-studio-sidebar via-white to-studio-actionSoft/80 p-5 shadow-sm xl:grid-cols-[1.1fr_0.9fr]">
+      <section className="grid gap-4 rounded-xl border border-studio-border bg-gradient-to-br from-white via-studio-primarySoft/70 to-studio-actionSoft p-5 shadow-sm xl:grid-cols-[1.1fr_0.9fr]">
         <div>
           <Badge tone="primary">OpenTalking Studio</Badge>
-          <h1 className="mt-4 max-w-3xl text-3xl font-bold leading-tight tracking-normal text-slate-950">
+          <h1 className="mt-4 max-w-3xl text-3xl font-bold leading-tight tracking-normal text-studio-primaryStrong">
             创建可对话、可生成、可复用的数字人内容资产
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-studio-muted">
@@ -39,10 +39,10 @@ export function WorkspacePage({ onNavigate }: WorkspacePageProps) {
             </Button>
           </div>
         </div>
-        <div className="relative min-h-64 overflow-hidden rounded-xl border border-white/70 bg-gradient-to-br from-studio-primarySoft via-blue-100 to-studio-actionSoft">
+        <div className="relative min-h-64 overflow-hidden rounded-xl border border-white/70 bg-gradient-to-br from-studio-primarySoft via-white to-studio-actionSoft">
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.52)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.52)_1px,transparent_1px)] bg-[size:32px_32px]" />
           <div className="absolute left-5 top-5 rounded-full bg-white/85 px-3 py-2 text-xs font-bold text-studio-primaryStrong">实时对话 · 已就绪</div>
-          <div className="absolute bottom-0 right-10 h-56 w-36 rounded-t-full bg-gradient-to-b from-white to-sky-100 shadow-2xl" />
+          <div className="absolute bottom-0 right-10 h-56 w-36 rounded-t-full bg-gradient-to-b from-white to-studio-actionSoft shadow-2xl" />
           <div className="absolute bottom-5 left-5 right-28 rounded-xl border border-white/70 bg-white/80 p-4 text-sm leading-6 text-studio-text backdrop-blur">
             选择一个行业方案包，再替换形象、声音、背景和知识库。
           </div>

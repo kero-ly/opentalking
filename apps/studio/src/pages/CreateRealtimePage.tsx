@@ -17,7 +17,7 @@ export function CreateRealtimePage() {
 
   return (
     <div className="grid gap-5">
-      <Card className="grid gap-5 bg-gradient-to-br from-studio-sidebar via-white to-blue-50 p-6 xl:grid-cols-[1fr_360px]">
+      <Card className="grid gap-5 bg-gradient-to-br from-white via-studio-primarySoft/70 to-studio-actionSoft p-6 xl:grid-cols-[1fr_360px]">
         <div>
           <h1 className="text-2xl font-bold text-studio-text">创建实时对话数字人</h1>
           <p className="mt-2 max-w-3xl text-sm leading-7 text-studio-muted">
@@ -28,7 +28,7 @@ export function CreateRealtimePage() {
             <Button>运行测试会话</Button>
           </div>
         </div>
-        <div className="rounded-xl border border-white/70 bg-gradient-to-br from-studio-primarySoft via-blue-100 to-studio-actionSoft p-4">
+        <div className="rounded-xl border border-white/70 bg-gradient-to-br from-studio-primarySoft via-white to-studio-actionSoft p-4">
           <div className="rounded-lg bg-white/85 p-4 text-sm font-bold text-studio-primaryStrong">WebRTC · 低延迟测试台</div>
           <div className="mt-4 h-40 rounded-xl bg-white/50" />
         </div>
@@ -63,7 +63,7 @@ export function CreateRealtimePage() {
 
 function Summary({ icon, title, value }: { icon?: React.ReactNode; title: string; value: number }) {
   return (
-    <div className="rounded-xl border border-studio-border bg-white p-4">
+    <div className="rounded-xl border border-studio-border bg-white/90 p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-bold text-studio-muted">{title}</p>
         {icon}

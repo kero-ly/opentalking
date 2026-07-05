@@ -8,15 +8,15 @@ type SolutionKitCardProps = {
 };
 
 const toneClass: Record<SolutionKit["coverTone"], string> = {
-  mint: "from-studio-primarySoft to-cyan-100",
-  blue: "from-blue-100 to-sky-200",
-  warm: "from-studio-mint to-studio-primarySoft",
-  mixed: "from-studio-primarySoft via-blue-100 to-studio-actionSoft",
+  mint: "from-studio-primarySoft to-white",
+  blue: "from-indigo-100 to-violet-100",
+  warm: "from-studio-actionSoft to-white",
+  mixed: "from-studio-primarySoft via-white to-studio-actionSoft",
 };
 
 export function SolutionKitCard({ kit, onOpen }: SolutionKitCardProps) {
   return (
-    <article className="overflow-hidden rounded-xl border border-studio-border bg-white shadow-sm">
+    <article className="overflow-hidden rounded-xl border border-studio-border bg-white/90 shadow-sm">
       <div className={`h-32 bg-gradient-to-br ${toneClass[kit.coverTone]} p-4`}>
         <Badge tone="primary">{kit.tags[0]}</Badge>
       </div>

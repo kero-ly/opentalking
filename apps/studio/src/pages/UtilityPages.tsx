@@ -16,7 +16,7 @@ export function UtilityPage({ description, eyebrow, title }: UtilityPageProps) {
   }
 
   return (
-    <Card className="bg-gradient-to-br from-white via-studio-mint to-studio-actionSoft/60 p-6">
+    <Card className="bg-gradient-to-br from-white via-studio-primarySoft/70 to-studio-actionSoft p-6">
       <Badge tone="neutral">{eyebrow}</Badge>
       <h1 className="mt-4 text-2xl font-bold text-studio-text">{title}</h1>
       <p className="mt-2 max-w-3xl text-sm leading-7 text-studio-muted">{description}</p>
@@ -30,7 +30,7 @@ export function UtilityPage({ description, eyebrow, title }: UtilityPageProps) {
 function UserManagementPage() {
   return (
     <div className="grid gap-5">
-      <Card className="bg-gradient-to-br from-white via-studio-mint to-studio-actionSoft/60 p-6">
+      <Card className="bg-gradient-to-br from-white via-studio-primarySoft/70 to-studio-actionSoft p-6">
         <Badge tone="primary">Users</Badge>
         <h1 className="mt-4 text-2xl font-bold text-studio-text">用户管理</h1>
         <p className="mt-2 max-w-3xl text-sm leading-7 text-studio-muted">
@@ -65,7 +65,7 @@ function UserManagementPage() {
           </CardHeader>
           <div className="grid gap-3 p-5">
             {invitationCodes.map((code) => (
-              <div key={code.code} className="rounded-xl border border-studio-border bg-white p-4">
+              <div key={code.code} className="rounded-xl border border-studio-border bg-white/90 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-bold tracking-wide text-studio-text">{code.code}</p>

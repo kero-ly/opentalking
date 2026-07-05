@@ -9,7 +9,7 @@ type MetricCardProps = {
 
 export function MetricCard({ hint, icon, label, value }: MetricCardProps) {
   return (
-    <div className="rounded-xl border border-studio-border bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-studio-border bg-white/90 p-4 shadow-sm">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-semibold text-studio-muted">{label}</p>
         {icon ? <span className="text-studio-primary">{icon}</span> : null}

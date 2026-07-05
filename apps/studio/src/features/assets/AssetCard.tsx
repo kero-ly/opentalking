@@ -6,10 +6,10 @@ type AssetCardProps = {
 };
 
 const toneClass: Record<StudioAsset["thumbnailTone"], string> = {
-  mint: "from-studio-primarySoft to-cyan-100",
-  blue: "from-blue-100 to-sky-200",
-  warm: "from-studio-mint to-studio-primarySoft",
-  mixed: "from-studio-primarySoft via-blue-100 to-studio-actionSoft",
+  mint: "from-studio-primarySoft to-white",
+  blue: "from-indigo-100 to-violet-100",
+  warm: "from-studio-actionSoft to-white",
+  mixed: "from-studio-primarySoft via-white to-studio-actionSoft",
 };
 
 const kindLabel: Record<StudioAsset["kind"], string> = {
@@ -26,7 +26,7 @@ const kindLabel: Record<StudioAsset["kind"], string> = {
 
 export function AssetCard({ asset }: AssetCardProps) {
   return (
-    <article className="overflow-hidden rounded-xl border border-studio-border bg-white shadow-sm transition-colors hover:border-studio-primary/40">
+    <article className="overflow-hidden rounded-xl border border-studio-border bg-white/90 shadow-sm transition-colors hover:border-studio-primary/40">
       <div className={`relative h-28 bg-gradient-to-br ${toneClass[asset.thumbnailTone]}`}>
         <div className="absolute inset-4 rounded-xl border border-white/60 bg-white/30 backdrop-blur-sm" />
         <Badge tone={asset.status === "ready" ? "success" : "warm"}>
@@ -44,7 +44,7 @@ export function AssetCard({ asset }: AssetCardProps) {
         <p className="mt-3 line-clamp-2 min-h-10 text-sm leading-5 text-studio-muted">{asset.description}</p>
         <div className="mt-4 flex flex-wrap gap-1.5">
           {asset.tags.slice(0, 3).map((tag) => (
-            <span key={tag} className="rounded-full bg-studio-mint px-2 py-1 text-xs font-bold text-studio-primaryStrong">
+            <span key={tag} className="rounded-full bg-studio-primarySoft px-2 py-1 text-xs font-bold text-studio-primaryStrong">
               {tag}
             </span>
           ))}

@@ -12,7 +12,8 @@ describe("StudioLayout", () => {
 
     expect(markup).toContain(">登录</button>");
     expect(markup).not.toContain(">注册</button>");
-    expect(markup).toContain("bg-studio-primary");
-    expect(markup).not.toContain("from-studio-actionStart");
+    expect(markup).toContain("bg-studio-action");
+    expect(markup).toContain("bg-[radial-gradient");
+    expect(markup).not.toContain("#22C7B8");
   });
 });
