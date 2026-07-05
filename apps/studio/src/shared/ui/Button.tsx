@@ -8,7 +8,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variantClass: Record<ButtonVariant, string> = {
-  primary: "border-transparent bg-gradient-to-r from-studio-actionStart to-studio-actionEnd text-slate-950 shadow-[0_14px_24px_rgba(129,140,248,0.2)] hover:from-cyan-200 hover:to-violet-300",
+  primary: "border-transparent bg-studio-primary text-white shadow-[0_14px_24px_rgba(15,118,110,0.18)] hover:bg-studio-primaryStrong",
   secondary: "border-studio-border bg-white text-studio-text hover:border-studio-primary/40 hover:bg-studio-mint",
   ghost: "border-transparent bg-transparent text-studio-muted hover:bg-white/80 hover:text-studio-text",
 };

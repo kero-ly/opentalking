@@ -152,7 +152,7 @@ export function StudioLayout({ activeRouteId, children, onNavigate, onSignOut, s
             <div className="flex min-w-0 flex-1 items-center justify-between gap-3 md:flex-none md:justify-end">
               <button
                 type="button"
-                className="rounded-full border border-violet-100 bg-studio-actionSoft px-3 py-2 text-sm font-bold text-violet-700"
+                className="rounded-full border border-studio-primarySoft bg-studio-mint px-3 py-2 text-sm font-bold text-studio-primaryStrong"
                 onClick={() => onNavigate(getRoutePath("billing"))}
               >
                 {demoQuota.coinBalance} 言币
@@ -168,14 +168,14 @@ export function StudioLayout({ activeRouteId, children, onNavigate, onSignOut, s
                   <button
                     type="button"
                     onClick={() => onNavigate(getRoutePath("settings"))}
-                    className="flex min-w-0 items-center gap-2 rounded-full border border-violet-100 bg-gradient-to-br from-white to-studio-actionSoft py-1 pl-1 pr-3"
+                    className="flex min-w-0 items-center gap-2 rounded-full border border-studio-primarySoft bg-gradient-to-br from-white to-studio-mint py-1 pl-1 pr-3"
                   >
-                    <span className="relative h-9 w-9 rounded-full bg-gradient-to-br from-studio-primary to-studio-actionEnd">
+                    <span className="relative h-9 w-9 rounded-full bg-gradient-to-br from-studio-primary to-[#22C7B8]">
                       <span className="absolute inset-x-2 bottom-2 top-2 rounded-full rounded-b-lg bg-white/85" />
                     </span>
                     <span className="hidden text-left sm:block">
                       <span className="block text-xs font-bold text-studio-text">{currentUser.name}</span>
-                      <span className="block text-[11px] font-bold text-violet-700">邀请码已验证</span>
+                      <span className="block text-[11px] font-bold text-studio-primaryStrong">邀请码已验证</span>
                     </span>
                   </button>
                   <Button className="hidden sm:inline-flex" variant="ghost" onClick={onSignOut}>
@@ -184,11 +184,8 @@ export function StudioLayout({ activeRouteId, children, onNavigate, onSignOut, s
                 </>
               ) : (
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" onClick={() => onNavigate(getRoutePath("login"))}>
+                  <Button variant="primary" onClick={() => onNavigate(getRoutePath("login"))}>
                     登录
-                  </Button>
-                  <Button variant="primary" onClick={() => onNavigate(getRoutePath("register"))}>
-                    注册
                   </Button>
                 </div>
               )}
