@@ -80,6 +80,7 @@ machine.md
 # Internal dev specs (not for public repo)
 AGENTS.md
 docs/superpowers/
+.superpowers/
 .worktrees/
 
 # MkDocs build output
