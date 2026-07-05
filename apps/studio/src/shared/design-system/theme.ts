@@ -1,0 +1,24 @@
+export const studioTheme = {
+  color: {
+    background: "#F8FAFC",
+    surface: "#FFFFFF",
+    surfaceMint: "#F6FBFA",
+    sidebar: "#ECFDF5",
+    primary: "#0F766E",
+    primaryStrong: "#115E59",
+    primarySoft: "#CCFBF1",
+    action: "#D98B5F",
+    actionStrong: "#C8754F",
+    actionSoft: "#FFF4ED",
+    info: "#2563EB",
+    text: "#102033",
+    muted: "#64748B",
+    border: "#DBE7E8",
+    borderSoft: "#EAF2F3",
+  },
+  radius: {
+    control: "8px",
+    card: "10px",
+    panel: "12px",
+  },
+} as const;
