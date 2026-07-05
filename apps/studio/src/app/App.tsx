@@ -45,7 +45,7 @@ function pageForRoute(routeId: StudioRouteId, pathname: string, onNavigate: (pat
     case "solutions":
       return <SolutionKitsPage onNavigate={onNavigate} />;
     case "solutionDetail":
-      return <SolutionKitDetailPage id={routeParam(pathname)} />;
+      return <SolutionKitDetailPage id={routeParam(pathname)} onNavigate={onNavigate} />;
     case "projects":
     case "projectDetail":
       return <ProjectsPage />;
@@ -74,10 +74,11 @@ export function App() {
   }, []);
 
   const navigate = (path: string) => {
-    if (window.location.pathname !== path) {
+    const nextUrl = new URL(path, window.location.origin);
+    if (window.location.pathname !== nextUrl.pathname || window.location.search !== nextUrl.search) {
       window.history.pushState(null, "", path);
     }
-    setPathname(path);
+    setPathname(window.location.pathname);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 

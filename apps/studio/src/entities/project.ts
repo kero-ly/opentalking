@@ -15,7 +15,7 @@ export const studioProjects: StudioProject[] = [
     type: "realtime",
     status: "ready",
     solutionKitId: "healthcare-guide",
-    linkedAssetIds: ["avatar-medical-guide", "voice-anchor-clear-cn", "knowledge-hospital-guide"],
+    linkedAssetIds: ["avatar-office-woman", "voice-local-office-serena", "knowledge-hospital-guide"],
     updatedAt: "2026-07-05T09:20:00.000Z",
   },
   {
@@ -24,7 +24,7 @@ export const studioProjects: StudioProject[] = [
     type: "video",
     status: "generating",
     solutionKitId: "commerce-live",
-    linkedAssetIds: ["avatar-commerce-host", "background-commerce-live-room", "script-product-launch"],
+    linkedAssetIds: ["avatar-live-broadcast", "scene-commerce-live-front", "script-product-launch"],
     updatedAt: "2026-07-05T08:45:00.000Z",
   },
   {
@@ -33,7 +33,7 @@ export const studioProjects: StudioProject[] = [
     type: "solution_kit",
     status: "published",
     solutionKitId: "enterprise-training",
-    linkedAssetIds: ["scene-training-classroom", "voice-anchor-clear-cn"],
+    linkedAssetIds: ["avatar-anchor", "voice-indextts-yunxia-cn", "background-default-data-wall"],
     updatedAt: "2026-07-04T17:30:00.000Z",
   },
 ];

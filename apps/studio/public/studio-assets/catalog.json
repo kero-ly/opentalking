@@ -1,0 +1,336 @@
+{
+  "version": "2026-07-05-local",
+  "storageContract": {
+    "provider": "local",
+    "bucket": "opentalking-studio-local",
+    "region": "local-dev",
+    "futureProviders": ["s3", "oss", "cos", "r2"],
+    "requiredFields": [
+      "provider",
+      "bucket",
+      "region",
+      "key",
+      "publicUrl",
+      "previewUrl",
+      "thumbnailUrl",
+      "sourcePath",
+      "checksum",
+      "sizeBytes",
+      "contentType"
+    ]
+  },
+  "assets": [
+    {
+      "id": "avatar-office-woman",
+      "kind": "avatar",
+      "status": "ready",
+      "name": "职场女数字人",
+      "workflows": ["asset_center", "video", "realtime", "solution_kit"],
+      "storage": {
+        "key": "avatars/office-woman/preview.png",
+        "publicUrl": "/studio-assets/avatars/office-woman/preview.png",
+        "previewUrl": "/studio-assets/avatars/office-woman/preview.png",
+        "thumbnailUrl": "/studio-assets/avatars/office-woman/reference.png",
+        "sourcePath": "apps/studio/public/studio-assets/avatars/office-woman/preview.png",
+        "checksum": "sha256:d9e3ca517cb937584b13dd94494f8ece8d883f51b1ee9875dceaf548052f09dd",
+        "sizeBytes": 256955,
+        "contentType": "image/png"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": { "imageUrl": "/studio-assets/avatars/office-woman/preview.png", "aspectRatio": "9:16" },
+      "technical": { "width": 540, "height": 900, "fps": 30, "sampleRate": 16000, "modelType": "wav2lip" }
+    },
+    {
+      "id": "avatar-live-broadcast",
+      "kind": "avatar",
+      "status": "ready",
+      "name": "直播带货主播",
+      "workflows": ["asset_center", "video", "realtime", "solution_kit"],
+      "storage": {
+        "key": "avatars/live-broadcast/preview.png",
+        "publicUrl": "/studio-assets/avatars/live-broadcast/preview.png",
+        "previewUrl": "/studio-assets/avatars/live-broadcast/preview.png",
+        "thumbnailUrl": "/studio-assets/avatars/live-broadcast/reference.png",
+        "sourcePath": "apps/studio/public/studio-assets/avatars/live-broadcast/preview.png",
+        "checksum": "sha256:local-live-broadcast-preview",
+        "sizeBytes": 481902,
+        "contentType": "image/png"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": { "imageUrl": "/studio-assets/avatars/live-broadcast/preview.png", "aspectRatio": "9:16" }
+    },
+    {
+      "id": "avatar-anchor",
+      "kind": "avatar",
+      "status": "ready",
+      "name": "新闻主播数字人",
+      "workflows": ["asset_center", "video", "realtime"],
+      "storage": {
+        "key": "avatars/anchor/preview.png",
+        "publicUrl": "/studio-assets/avatars/anchor/preview.png",
+        "previewUrl": "/studio-assets/avatars/anchor/preview.png",
+        "thumbnailUrl": "/studio-assets/avatars/anchor/reference.png",
+        "sourcePath": "apps/studio/public/studio-assets/avatars/anchor/preview.png",
+        "checksum": "sha256:local-anchor-preview",
+        "sizeBytes": 4871715,
+        "contentType": "image/png"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": { "imageUrl": "/studio-assets/avatars/anchor/preview.png", "aspectRatio": "9:16" }
+    },
+    {
+      "id": "avatar-fitness-coach",
+      "kind": "avatar",
+      "status": "ready",
+      "name": "健身教练数字人",
+      "workflows": ["asset_center", "video"],
+      "storage": {
+        "key": "avatars/fitness-coach/preview.png",
+        "publicUrl": "/studio-assets/avatars/fitness-coach/preview.png",
+        "previewUrl": "/studio-assets/avatars/fitness-coach/preview.png",
+        "thumbnailUrl": "/studio-assets/avatars/fitness-coach/reference.png",
+        "sourcePath": "apps/studio/public/studio-assets/avatars/fitness-coach/preview.png",
+        "checksum": "sha256:local-fitness-coach-preview",
+        "sizeBytes": 269754,
+        "contentType": "image/png"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": { "imageUrl": "/studio-assets/avatars/fitness-coach/preview.png", "aspectRatio": "9:16" }
+    },
+    {
+      "id": "voice-local-office-serena",
+      "kind": "voice",
+      "status": "ready",
+      "name": "职场女声 Serena",
+      "workflows": ["asset_center", "video", "realtime", "solution_kit"],
+      "storage": {
+        "key": "voices/local-office-serena/prompt.wav",
+        "publicUrl": "/studio-assets/voices/local-office-serena/prompt.wav",
+        "previewUrl": "/studio-assets/voices/local-office-serena/prompt.wav",
+        "thumbnailUrl": "/studio-assets/voices/local-office-serena/meta.json",
+        "sourcePath": "apps/studio/public/studio-assets/voices/local-office-serena/prompt.wav",
+        "checksum": "sha256:81a907f4570ab7b52c4204b8e7c91369312fe0157b3cff6d4488c8b9f28e3f59",
+        "sizeBytes": 265004,
+        "contentType": "audio/wav"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": {
+        "audioUrl": "/studio-assets/voices/local-office-serena/prompt.wav",
+        "textExcerpt": "你好，欢迎来到OpenTalking。我会用自然清晰的声音，为你介绍今天的内容。"
+      },
+      "technical": { "sampleRate": 24000, "durationSec": 5.52, "provider": "local_cosyvoice" }
+    },
+    {
+      "id": "voice-local-anchor-cherry",
+      "kind": "voice",
+      "status": "ready",
+      "name": "主播女声 Cherry",
+      "workflows": ["asset_center", "video", "realtime", "solution_kit"],
+      "storage": {
+        "key": "voices/local-anchor-cherry/prompt.wav",
+        "publicUrl": "/studio-assets/voices/local-anchor-cherry/prompt.wav",
+        "previewUrl": "/studio-assets/voices/local-anchor-cherry/prompt.wav",
+        "thumbnailUrl": "/studio-assets/voices/local-anchor-cherry/meta.json",
+        "sourcePath": "apps/studio/public/studio-assets/voices/local-anchor-cherry/prompt.wav",
+        "checksum": "sha256:local-anchor-cherry-prompt",
+        "sizeBytes": 303404,
+        "contentType": "audio/wav"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": { "audioUrl": "/studio-assets/voices/local-anchor-cherry/prompt.wav" },
+      "technical": { "sampleRate": 24000, "durationSec": 6.32, "provider": "local_cosyvoice" }
+    },
+    {
+      "id": "voice-indextts-yunxia-cn",
+      "kind": "voice",
+      "status": "ready",
+      "name": "云霞轻快男声",
+      "workflows": ["asset_center", "video", "realtime"],
+      "storage": {
+        "key": "voices/indextts-yunxia-cn/prompt.wav",
+        "publicUrl": "/studio-assets/voices/indextts-yunxia-cn/prompt.wav",
+        "previewUrl": "/studio-assets/voices/indextts-yunxia-cn/prompt.wav",
+        "thumbnailUrl": "/studio-assets/voices/indextts-yunxia-cn/meta.json",
+        "sourcePath": "apps/studio/public/studio-assets/voices/indextts-yunxia-cn/prompt.wav",
+        "checksum": "sha256:local-yunxia-prompt",
+        "sizeBytes": 500046,
+        "contentType": "audio/wav"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": { "audioUrl": "/studio-assets/voices/indextts-yunxia-cn/prompt.wav" },
+      "technical": { "provider": "local_indextts", "targetModel": "IndexTeam/IndexTTS-2" }
+    },
+    {
+      "id": "background-default-data-wall",
+      "kind": "background",
+      "status": "ready",
+      "name": "默认数据墙背景",
+      "workflows": ["asset_center", "video", "realtime", "solution_kit"],
+      "storage": {
+        "key": "backgrounds/default-data-wall.jpg",
+        "publicUrl": "/studio-assets/backgrounds/default-data-wall.jpg",
+        "previewUrl": "/studio-assets/backgrounds/default-data-wall.jpg",
+        "thumbnailUrl": "/studio-assets/backgrounds/default-data-wall.jpg",
+        "sourcePath": "apps/studio/public/studio-assets/backgrounds/default-data-wall.jpg",
+        "checksum": "sha256:5a98a3c082b4a2c8a630dab8b6c83e196d3407132fce4127b650e6de5f2b2f12",
+        "sizeBytes": 316668,
+        "contentType": "image/jpeg"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": { "imageUrl": "/studio-assets/backgrounds/default-data-wall.jpg", "aspectRatio": "16:9" }
+    },
+    {
+      "id": "scene-commerce-live-front",
+      "kind": "scene",
+      "status": "ready",
+      "name": "电商直播间正面机位",
+      "workflows": ["asset_center", "video", "solution_kit"],
+      "storage": {
+        "key": "cases/ecommerce-live-front-preview.png",
+        "publicUrl": "/studio-assets/cases/ecommerce-live-front-preview.png",
+        "previewUrl": "/studio-assets/cases/ecommerce-live-front-preview.png",
+        "thumbnailUrl": "/studio-assets/cases/ecommerce-live-front-preview.png",
+        "sourcePath": "apps/studio/public/studio-assets/cases/ecommerce-live-front-preview.png",
+        "checksum": "sha256:a7792a4037833a55e3d528762ae129640da21f723443ec94057c5602b1f516ba",
+        "sizeBytes": 1664411,
+        "contentType": "image/png"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": { "imageUrl": "/studio-assets/cases/ecommerce-live-front-preview.png", "aspectRatio": "9:16" }
+    },
+    {
+      "id": "scene-medical-guide-zh",
+      "kind": "scene",
+      "status": "ready",
+      "name": "中文医疗导诊案例场景",
+      "workflows": ["asset_center", "video", "realtime", "solution_kit"],
+      "storage": {
+        "key": "cases/medical-guide-zh-preview.png",
+        "publicUrl": "/studio-assets/cases/medical-guide-zh-preview.png",
+        "previewUrl": "/studio-assets/cases/medical-guide-zh-preview.png",
+        "thumbnailUrl": "/studio-assets/cases/medical-guide-zh-preview.png",
+        "sourcePath": "apps/studio/public/studio-assets/cases/medical-guide-zh-preview.png",
+        "checksum": "sha256:0ea602d970a929aae843dbb378fd313e1297a25f86219f8c5de3738c0e370a06",
+        "sizeBytes": 892975,
+        "contentType": "image/png"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": { "imageUrl": "/studio-assets/cases/medical-guide-zh-preview.png", "aspectRatio": "16:9" }
+    },
+    {
+      "id": "knowledge-hospital-guide",
+      "kind": "knowledge",
+      "status": "ready",
+      "name": "医院导诊知识库",
+      "workflows": ["asset_center", "realtime", "solution_kit"],
+      "storage": {
+        "key": "docs/opentalking-knowledge.png",
+        "publicUrl": "/studio-assets/docs/opentalking-knowledge.png",
+        "previewUrl": "/studio-assets/docs/opentalking-knowledge.png",
+        "thumbnailUrl": "/studio-assets/docs/opentalking-knowledge.png",
+        "sourcePath": "apps/studio/public/studio-assets/docs/opentalking-knowledge.png",
+        "checksum": "sha256:local-opentalking-knowledge-doc",
+        "sizeBytes": 161561,
+        "contentType": "image/png"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": { "imageUrl": "/studio-assets/docs/opentalking-knowledge.png", "documentUrl": "/studio-assets/docs/opentalking-knowledge.png" }
+    },
+    {
+      "id": "persona-service-guide",
+      "kind": "persona",
+      "status": "ready",
+      "name": "专业服务助手人设",
+      "workflows": ["asset_center", "realtime", "solution_kit"],
+      "storage": {
+        "key": "docs/opentalking-webui.png",
+        "publicUrl": "/studio-assets/docs/opentalking-webui.png",
+        "previewUrl": "/studio-assets/docs/opentalking-webui.png",
+        "thumbnailUrl": "/studio-assets/docs/opentalking-webui.png",
+        "sourcePath": "apps/studio/public/studio-assets/docs/opentalking-webui.png",
+        "checksum": "sha256:local-opentalking-webui-doc",
+        "sizeBytes": 913137,
+        "contentType": "image/png"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": { "imageUrl": "/studio-assets/docs/opentalking-webui.png" }
+    },
+    {
+      "id": "script-product-launch",
+      "kind": "script_template",
+      "status": "ready",
+      "name": "新品发布口播脚本",
+      "workflows": ["asset_center", "video", "solution_kit"],
+      "storage": {
+        "key": "docs/opentalking-makevideo.png",
+        "publicUrl": "/studio-assets/docs/opentalking-makevideo.png",
+        "previewUrl": "/studio-assets/docs/opentalking-makevideo.png",
+        "thumbnailUrl": "/studio-assets/docs/opentalking-makevideo.png",
+        "sourcePath": "apps/studio/public/studio-assets/docs/opentalking-makevideo.png",
+        "checksum": "sha256:6fd69e4399cfde3df88351afe94add146d21a8f711caed091a957d2bae800ec6",
+        "sizeBytes": 279328,
+        "contentType": "image/png"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": { "imageUrl": "/studio-assets/docs/opentalking-makevideo.png" }
+    },
+    {
+      "id": "runtime-flashtalk-quality",
+      "kind": "runtime_preset",
+      "status": "ready",
+      "name": "高质量实时渲染预设",
+      "workflows": ["asset_center", "realtime", "solution_kit"],
+      "storage": {
+        "key": "docs/opentalking-webui.png",
+        "publicUrl": "/studio-assets/docs/opentalking-webui.png",
+        "previewUrl": "/studio-assets/docs/opentalking-webui.png",
+        "thumbnailUrl": "/studio-assets/docs/opentalking-webui.png",
+        "sourcePath": "apps/studio/public/studio-assets/docs/opentalking-webui.png",
+        "checksum": "sha256:local-runtime-flashtalk-quality",
+        "sizeBytes": 913137,
+        "contentType": "image/png"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": { "imageUrl": "/studio-assets/docs/opentalking-webui.png" },
+      "technical": { "provider": "local_mock_runtime", "targetModel": "FlashTalk", "fps": 30 }
+    },
+    {
+      "id": "export-healthcare-sample",
+      "kind": "export_video",
+      "status": "ready",
+      "name": "医疗导诊样片",
+      "workflows": ["asset_center"],
+      "storage": {
+        "key": "cases/medical-guide-zh-preview.png",
+        "publicUrl": "/studio-assets/cases/medical-guide-zh-preview.png",
+        "previewUrl": "/studio-assets/cases/medical-guide-zh-preview.png",
+        "thumbnailUrl": "/studio-assets/cases/medical-guide-zh-preview.png",
+        "sourcePath": "apps/studio/public/studio-assets/cases/medical-guide-zh-preview.png",
+        "checksum": "sha256:0ea602d970a929aae843dbb378fd313e1297a25f86219f8c5de3738c0e370a06",
+        "sizeBytes": 892975,
+        "contentType": "image/png"
+      },
+      "upload": { "status": "local", "progress": 100 },
+      "preview": { "imageUrl": "/studio-assets/cases/medical-guide-zh-preview.png", "aspectRatio": "16:9" }
+    },
+    {
+      "id": "avatar-processing-clone",
+      "kind": "avatar",
+      "status": "processing",
+      "name": "自定义克隆形象",
+      "workflows": ["asset_center", "video", "realtime"],
+      "storage": {
+        "key": "avatars/woman/preview.png",
+        "publicUrl": "/studio-assets/avatars/woman/preview.png",
+        "previewUrl": "/studio-assets/avatars/woman/preview.png",
+        "thumbnailUrl": "/studio-assets/avatars/woman/reference.png",
+        "sourcePath": "apps/studio/public/studio-assets/avatars/woman/preview.png",
+        "checksum": "sha256:local-user-clone-preview",
+        "sizeBytes": 495017,
+        "contentType": "image/png"
+      },
+      "upload": { "status": "processing", "progress": 68, "taskId": "task-avatar-clone-demo" },
+      "preview": { "imageUrl": "/studio-assets/avatars/woman/preview.png", "aspectRatio": "9:16" }
+    }
+  ]
+}

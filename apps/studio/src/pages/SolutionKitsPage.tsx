@@ -19,7 +19,7 @@ export function SolutionKitsPage({ onNavigate }: SolutionKitsPageProps) {
       </Card>
       <div className="grid gap-4 md:grid-cols-3">
         {solutionKits.map((kit) => (
-          <SolutionKitCard key={kit.id} kit={kit} onOpen={(id) => onNavigate(`/solutions/${id}`)} />
+          <SolutionKitCard key={kit.id} kit={kit} onNavigate={onNavigate} onOpen={(id) => onNavigate(`/solutions/${id}`)} />
         ))}
       </div>
     </div>

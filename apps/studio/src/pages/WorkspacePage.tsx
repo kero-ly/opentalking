@@ -1,4 +1,4 @@
-import { FileVideo, Mic2, Presentation, Radio, Sparkles } from "lucide-react";
+import { Boxes, FileVideo, Mic2, Presentation, Radio, Sparkles, UploadCloud } from "lucide-react";
 import { getFeaturedAssets } from "../entities/asset";
 import { studioProjects } from "../entities/project";
 import { demoQuota, quotaUsagePercent } from "../entities/quota";
@@ -16,6 +16,33 @@ type WorkspacePageProps = {
 };
 
 export function WorkspacePage({ onNavigate }: WorkspacePageProps) {
+  const quickStarts = [
+    {
+      title: "电商方案生成视频",
+      desc: "套用主播、场景、音色和新品脚本。",
+      icon: FileVideo,
+      href: "/create/video?kit=commerce-live",
+    },
+    {
+      title: "医疗导诊实时数字人",
+      desc: "绑定人设、知识库和实时运行预设。",
+      icon: Radio,
+      href: "/create/realtime?kit=healthcare-guide",
+    },
+    {
+      title: "上传新资产",
+      desc: "创建本地上传意图，预留云存储字段。",
+      icon: UploadCloud,
+      href: "/assets?upload=1",
+    },
+    {
+      title: "查看最近项目",
+      desc: "继续编辑视频、实时会话或方案项目。",
+      icon: Boxes,
+      href: "/projects",
+    },
+  ];
+
   return (
     <div className="grid gap-5">
       <section className="grid gap-4 rounded-xl border border-studio-border bg-gradient-to-br from-white via-studio-primarySoft/70 to-studio-actionSoft p-5 shadow-sm xl:grid-cols-[1.1fr_0.9fr]">
@@ -56,6 +83,24 @@ export function WorkspacePage({ onNavigate }: WorkspacePageProps) {
         <MetricCard label="最近项目" value={`${studioProjects.length}`} hint="包含视频与实时数字人项目" icon={<Mic2 className="h-4 w-4" />} />
       </section>
 
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {quickStarts.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.title}
+              type="button"
+              onClick={() => onNavigate(item.href)}
+              className="rounded-xl border border-studio-border bg-white/90 p-4 text-left shadow-sm transition-colors hover:border-studio-primary/45 hover:bg-studio-primarySoft/35"
+            >
+              <Icon className="h-5 w-5 text-studio-primary" aria-hidden />
+              <h2 className="mt-3 text-sm font-bold text-studio-text">{item.title}</h2>
+              <p className="mt-1 text-xs font-semibold leading-5 text-studio-muted">{item.desc}</p>
+            </button>
+          );
+        })}
+      </section>
+
       <section className="grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
         <Card>
           <CardHeader action={<Button variant="ghost" onClick={() => onNavigate("/assets")}>资产中心</Button>}>
@@ -82,7 +127,7 @@ export function WorkspacePage({ onNavigate }: WorkspacePageProps) {
         </CardHeader>
         <div className="grid gap-4 p-5 md:grid-cols-3">
           {solutionKits.map((kit) => (
-            <SolutionKitCard key={kit.id} kit={kit} onOpen={(id) => onNavigate(`/solutions/${id}`)} />
+            <SolutionKitCard key={kit.id} kit={kit} onNavigate={onNavigate} onOpen={(id) => onNavigate(`/solutions/${id}`)} />
           ))}
         </div>
       </Card>
