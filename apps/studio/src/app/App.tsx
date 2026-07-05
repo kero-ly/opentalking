@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { clearStudioSession, readStudioSession, saveStudioSession, type StudioSession } from "../entities/auth";
 import { AssetLibraryPage } from "../pages/AssetLibraryPage";
 import { AuthPage, getAuthCopy } from "../pages/AuthPages";
 import { CreateRealtimePage } from "../pages/CreateRealtimePage";
@@ -50,7 +51,7 @@ function pageForRoute(routeId: StudioRouteId, pathname: string, onNavigate: (pat
     case "billing":
       return <UtilityPage eyebrow="Billing" title="计费与额度" description="管理言币、生成分钟数、套餐升级和企业合同申请。" />;
     case "team":
-      return <UtilityPage eyebrow="Team" title="团队空间" description="邀请成员、分配资产权限，并统一管理团队项目。" />;
+      return <UtilityPage eyebrow="Users" title="用户管理" description="邀请成员、分配资产权限，并统一管理团队项目。" />;
     case "apiAccess":
       return <UtilityPage eyebrow="API" title="API 与私有化" description="申请实时数字人 API、嵌入组件和私有化部署支持。" />;
     case "settings":
@@ -62,6 +63,7 @@ function pageForRoute(routeId: StudioRouteId, pathname: string, onNavigate: (pat
 
 export function App() {
   const [pathname, setPathname] = useState(readPathname);
+  const [session, setSession] = useState<StudioSession | null>(() => readStudioSession());
   const route = findStudioRoute(pathname);
 
   useEffect(() => {
@@ -78,18 +80,39 @@ export function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleAuthenticated = (nextSession: StudioSession) => {
+    saveStudioSession(nextSession);
+    setSession(nextSession);
+    navigate("/workspace");
+  };
+
+  const handleSignOut = () => {
+    clearStudioSession();
+    setSession(null);
+    navigate("/login");
+  };
+
+  if (route.section !== "auth" && !session?.invitationVerified) {
+    const copy = getAuthCopy("login");
+    return (
+      <AuthLayout title={copy.title} subtitle="请先登录并验证邀请码，验证通过后才能体验 Studio。">
+        <AuthPage mode="login" onAuthenticated={handleAuthenticated} />
+      </AuthLayout>
+    );
+  }
+
   if (route.section === "auth") {
     const mode = route.id === "register" ? "register" : route.id === "trial" ? "trial" : "login";
     const copy = getAuthCopy(mode);
     return (
       <AuthLayout title={copy.title} subtitle={copy.subtitle}>
-        <AuthPage mode={mode} />
+        <AuthPage mode={mode} onAuthenticated={handleAuthenticated} />
       </AuthLayout>
     );
   }
 
   return (
-    <StudioLayout activeRouteId={route.id} onNavigate={navigate}>
+    <StudioLayout activeRouteId={route.id} onNavigate={navigate} onSignOut={handleSignOut} session={session}>
       {pageForRoute(route.id, pathname, navigate)}
     </StudioLayout>
   );

@@ -45,7 +45,7 @@ export const STUDIO_ROUTES: StudioRoute[] = [
   { id: "solutions", path: "/solutions", label: "解决方案包", section: "assets" },
   { id: "solutionDetail", path: "/solutions/:id", label: "方案详情", section: "assets" },
   { id: "billing", path: "/billing", label: "计费", section: "workspace" },
-  { id: "team", path: "/team", label: "团队", section: "workspace" },
+  { id: "team", path: "/team", label: "用户管理", section: "workspace" },
   { id: "apiAccess", path: "/api-access", label: "API 接入", section: "workspace" },
   { id: "settings", path: "/settings", label: "设置", section: "workspace" },
 ];

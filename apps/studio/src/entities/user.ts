@@ -1,5 +1,6 @@
 export type StudioUser = {
   id: string;
+  email?: string;
   name: string;
   role: "owner" | "admin" | "member";
   workspaceName: string;

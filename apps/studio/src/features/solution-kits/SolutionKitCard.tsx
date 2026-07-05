@@ -10,7 +10,7 @@ type SolutionKitCardProps = {
 const toneClass: Record<SolutionKit["coverTone"], string> = {
   mint: "from-studio-primarySoft to-cyan-100",
   blue: "from-blue-100 to-sky-200",
-  warm: "from-studio-actionSoft to-orange-100",
+  warm: "from-studio-actionSoft to-violet-100",
   mixed: "from-studio-primarySoft via-blue-100 to-studio-actionSoft",
 };
 

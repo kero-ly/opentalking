@@ -9,7 +9,7 @@ type BadgeProps = {
 
 const toneClass: Record<BadgeTone, string> = {
   primary: "border-studio-primarySoft bg-studio-primarySoft/60 text-studio-primaryStrong",
-  warm: "border-[#F2D0BD] bg-studio-actionSoft text-[#8A5438]",
+  warm: "border-violet-100 bg-studio-actionSoft text-violet-700",
   blue: "border-blue-100 bg-blue-50 text-blue-700",
   neutral: "border-slate-200 bg-slate-50 text-slate-600",
   success: "border-emerald-100 bg-emerald-50 text-emerald-700",

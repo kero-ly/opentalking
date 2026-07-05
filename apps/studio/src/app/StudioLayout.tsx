@@ -22,6 +22,7 @@ import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { demoQuota, quotaUsagePercent } from "../entities/quota";
 import { demoUser } from "../entities/user";
+import type { StudioSession } from "../entities/auth";
 import { getRoutePath, type StudioRouteId } from "./routes";
 import { Button } from "../shared/ui/Button";
 
@@ -29,6 +30,8 @@ type StudioLayoutProps = {
   activeRouteId: StudioRouteId;
   children: ReactNode;
   onNavigate: (path: string) => void;
+  onSignOut: () => void;
+  session: StudioSession | null;
 };
 
 type NavItem = {
@@ -54,7 +57,7 @@ const assetItems: NavItem[] = [
 ];
 
 const workspaceItems: NavItem[] = [
-  { id: "team", icon: Users, label: "团队" },
+  { id: "team", icon: Users, label: "用户管理" },
   { id: "billing", icon: CreditCard, label: "计费" },
   { id: "apiAccess", icon: KeyRound, label: "API 接入" },
   { id: "settings", icon: Settings, label: "设置" },
@@ -99,8 +102,9 @@ function NavGroup({
   );
 }
 
-export function StudioLayout({ activeRouteId, children, onNavigate }: StudioLayoutProps) {
+export function StudioLayout({ activeRouteId, children, onNavigate, onSignOut, session }: StudioLayoutProps) {
   const usagePercent = quotaUsagePercent(demoQuota);
+  const currentUser = session?.user ?? demoUser;
 
   return (
     <div className="min-h-screen bg-studio-background text-studio-text">
@@ -148,7 +152,7 @@ export function StudioLayout({ activeRouteId, children, onNavigate }: StudioLayo
             <div className="flex min-w-0 flex-1 items-center justify-between gap-3 md:flex-none md:justify-end">
               <button
                 type="button"
-                className="rounded-full border border-[#F2D0BD] bg-studio-actionSoft px-3 py-2 text-sm font-bold text-[#8A5438]"
+                className="rounded-full border border-violet-100 bg-studio-actionSoft px-3 py-2 text-sm font-bold text-violet-700"
                 onClick={() => onNavigate(getRoutePath("billing"))}
               >
                 {demoQuota.coinBalance} 言币
@@ -162,16 +166,19 @@ export function StudioLayout({ activeRouteId, children, onNavigate }: StudioLayo
               <button
                 type="button"
                 onClick={() => onNavigate(getRoutePath("settings"))}
-                className="flex min-w-0 items-center gap-2 rounded-full border border-[#F2D0BD] bg-gradient-to-br from-white to-studio-actionSoft py-1 pl-1 pr-3"
+                className="flex min-w-0 items-center gap-2 rounded-full border border-violet-100 bg-gradient-to-br from-white to-studio-actionSoft py-1 pl-1 pr-3"
               >
-                <span className="relative h-9 w-9 rounded-full bg-gradient-to-br from-studio-primary to-studio-action">
+                <span className="relative h-9 w-9 rounded-full bg-gradient-to-br from-studio-primary to-studio-actionEnd">
                   <span className="absolute inset-x-2 bottom-2 top-2 rounded-full rounded-b-lg bg-white/85" />
                 </span>
                 <span className="hidden text-left sm:block">
-                  <span className="block text-xs font-bold text-studio-text">{demoUser.name}</span>
-                  <span className="block text-[11px] font-bold text-[#8A5438]">{demoUser.trialing ? "试用中" : demoUser.workspaceName}</span>
+                  <span className="block text-xs font-bold text-studio-text">{currentUser.name}</span>
+                  <span className="block text-[11px] font-bold text-violet-700">{session?.invitationVerified ? "邀请码已验证" : "试用中"}</span>
                 </span>
               </button>
+              <Button className="hidden sm:inline-flex" variant="ghost" onClick={onSignOut}>
+                退出
+              </Button>
             </div>
           </header>
 
